@@ -968,11 +968,18 @@
         // ============================================================================
         // INTRO SEQUENCE STATE MANAGEMENT
         // ============================================================================
+        const INTRO_CONFIG = {
+            MIN_SCATTER_DISTANCE: 80,
+            MAX_SCATTER_RANGE: 40,
+            SEGMENT_COUNT: 20
+        };
+        
         let introState = {
             active: true,
             phase: 'formation', // phases: formation → zoom_out → static_hold → normal
             progress: 0,
             startTime: performance.now(),
+            cameraStartPos: null, // Captured at phase transitions
             phaseDurations: {
                 formation: 4000,      // 4s for wireframes to connect
                 zoom_out: 2000,       // 2s smooth zoom out
@@ -1020,15 +1027,14 @@
         
         // Create wireframe segments for intro animation
         const wireframeSegments = [];
-        const segmentCount = 20; // Number of wireframe pieces
+        const segmentCount = INTRO_CONFIG.SEGMENT_COUNT;
         
         for (let i = 0; i < segmentCount; i++) {
-            // Create segments that divide the sphere into distinct pieces
-            // Using both theta and phi ranges to create wedge-like segments
+            // Create segments as full vertical wedges that divide the sphere
             const thetaStart = (i / segmentCount) * Math.PI * 2;
             const thetaLength = (Math.PI * 2) / segmentCount;
-            const phiStart = (i % 2 === 0) ? 0 : Math.PI / 2;
-            const phiLength = Math.PI / 2;
+            const phiStart = 0;
+            const phiLength = Math.PI;
             
             const segmentGeometry = new THREE.SphereGeometry(
                 planetRadius, 8, 8, 
@@ -1049,7 +1055,7 @@
             
             // Store initial scattered position
             const angle = (i / segmentCount) * Math.PI * 2;
-            const distance = 80 + Math.random() * 40;
+            const distance = INTRO_CONFIG.MIN_SCATTER_DISTANCE + Math.random() * INTRO_CONFIG.MAX_SCATTER_RANGE;
             segment.userData.initialPos = {
                 x: Math.cos(angle) * distance,
                 y: (Math.random() - 0.5) * 80,
@@ -1433,6 +1439,12 @@
                 if (progress >= 1) {
                     introState.phase = 'zoom_out';
                     introState.startTime = currentTime;
+                    // Capture camera position at end of formation
+                    introState.cameraStartPos = {
+                        x: camera.position.x,
+                        y: camera.position.y,
+                        z: camera.position.z
+                    };
                 }
             } else if (phase === 'zoom_out') {
                 const duration = introState.phaseDurations.zoom_out;
@@ -1452,16 +1464,14 @@
                 });
                 
                 // Camera zooms out to static position
-                const startX = camera.position.x;
-                const startY = camera.position.y;
-                const startZ = camera.position.z;
+                const startPos = introState.cameraStartPos;
                 const targetX = 0;
                 const targetY = 50;
                 const targetZ = 120;
                 
-                camera.position.x = startX + (targetX - startX) * easeProgress;
-                camera.position.y = startY + (targetY - startY) * easeProgress;
-                camera.position.z = startZ + (targetZ - startZ) * easeProgress;
+                camera.position.x = startPos.x + (targetX - startPos.x) * easeProgress;
+                camera.position.y = startPos.y + (targetY - startPos.y) * easeProgress;
+                camera.position.z = startPos.z + (targetZ - startPos.z) * easeProgress;
                 camera.lookAt(0, 0, 0);
                 
                 if (progress >= 1) {
