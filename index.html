@@ -75,14 +75,7 @@
             }
         }
 
-        .main-content {
-            filter: blur(40px);
-            transition: filter 0.8s ease;
-        }
-
-        .main-content.loaded {
-            filter: blur(0px);
-        }
+        /* No blur on main content - always visible */
 
         /* Typewriter loading effect - Production ready */
         .profile, .social-icons, .links, .footer {
@@ -97,11 +90,11 @@
         }
 
         .profile.tw-visible,
-        .social-icons.tw-visible,
-        .links.tw-visible,
-        .footer.tw-visible {
+        .social-icons.tw-visible {
             animation: twFadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
+        
+        /* Links and footer use JavaScript-controlled fade-in (no CSS animation) */
 
         @keyframes twFadeInUp {
             from {
@@ -201,6 +194,14 @@
             
             .tw-glitch {
                 animation: none !important;
+            }
+
+            .icon-launch,
+            .icon-bloom,
+            .icon-ring,
+            .icon-spark {
+                animation: none !important;
+                transition-duration: 0s !important;
             }
         }
 
@@ -344,6 +345,7 @@
             border-radius: 50%;
             padding: 2px;
             background: linear-gradient(135deg, #9ca3af, #d1d5db, #9ca3af);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -427,6 +429,9 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(12px) scale(0.92);
+            pointer-events: none;
         }
 
         .social-icon::before {
@@ -456,6 +461,174 @@
             z-index: 1;
         }
 
+        .social-icon.icon-button--visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease;
+        }
+
+        .social-icon.icon-button--visible:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .social-icon.icon-button--pop {
+            animation: iconPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes iconPop {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.12); }
+            70% { transform: scale(0.96); }
+            100% { transform: scale(1); }
+        }
+
+        .icon-bloom, .icon-ring {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .icon-bloom {
+            background: radial-gradient(circle, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0));
+            opacity: 0;
+            border-radius: 50%;
+            transform: scale(0.6);
+            animation: bloomPulse 380ms ease-out forwards;
+        }
+
+        @keyframes bloomPulse {
+            0% { opacity: 0; transform: scale(0.4); }
+            40% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+
+        .icon-ring {
+            border-radius: 50%;
+            border: 2px solid rgba(191, 219, 254, 0.65);
+            transform: scale(0.4);
+            opacity: 0.9;
+            animation: ringExpand 420ms ease-out forwards;
+        }
+
+        @keyframes ringExpand {
+            0% { transform: scale(0.4); opacity: 0.8; }
+            70% { opacity: 0.4; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .icon-spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(226, 232, 240, 0.9);
+            opacity: 0;
+            animation: sparkBurst 360ms ease-out forwards;
+        }
+
+        @keyframes sparkBurst {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(var(--spark-x), var(--spark-y)) scale(0.2); opacity: 0; }
+        }
+
+        /* Toggle UI Button */
+        .toggle-ui-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e5e7eb;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 15000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toggle-ui-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .toggle-ui-btn:hover {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(226, 232, 240, 0.6);
+            transform: scale(1.05);
+        }
+
+        .toggle-ui-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Hide main content when toggled */
+        .main-content.hidden {
+            opacity: 0 !important;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #icon-flight-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9000;
+        }
+
+        #globe-origin-proxy {
+            position: fixed;
+            width: min(420px, 45vw);
+            height: min(420px, 45vw);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .icon-launch {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(32, 32, 40, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            color: #e2e8f0;
+            box-shadow: 0 0 22px rgba(148, 163, 184, 0.45);
+            transform: translate3d(0, 0, 0) scale(0.3);
+            opacity: 0;
+            --trail-alpha: 0;
+        }
+
+        .icon-launch::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 280%;
+            bottom: -140%;
+            left: -10%;
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.55), rgba(148, 163, 184, 0));
+            filter: blur(16px);
+            opacity: var(--trail-alpha);
+            transform-origin: top center;
+        }
+
+        .icon-launch i {
+            font-size: 20px;
+        }
+
         /* Links Section */
         .links {
             display: flex;
@@ -474,28 +647,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            animation: slideUp 0.5s ease-out backwards;
-        }
-
-        .link-item:nth-child(1) { animation-delay: 0.1s; }
-        .link-item:nth-child(2) { animation-delay: 0.15s; }
-        .link-item:nth-child(3) { animation-delay: 0.2s; }
-        .link-item:nth-child(4) { animation-delay: 0.25s; }
-        .link-item:nth-child(5) { animation-delay: 0.3s; }
-        .link-item:nth-child(6) { animation-delay: 0.35s; }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            opacity: 0;
+            transform: translateY(20px);
         }
 
         .link-item::before {
@@ -649,9 +805,14 @@
         <div id="entry-text"></div>
     </div>
 
+    <!-- Toggle UI Button -->
+    <button class="toggle-ui-btn" id="toggle-ui-btn" title="Toggle UI Visibility" aria-label="Toggle UI">
+        <i class="fas fa-eye-slash"></i>
+    </button>
+
     <canvas id="canvas-container"></canvas>
     
-    <div class="container main-content">
+    <div class="container main-content" aria-hidden="true">
         <!-- Profile Section -->
         <div class="profile">
             <div class="profile-image">
@@ -664,16 +825,16 @@
 
         <!-- Social Icons -->
         <div class="social-icons">
-            <a href="https://twitter.com/ALTROLL_2" class="social-icon" title="Twitter" aria-label="Twitter">
+            <a href="https://twitter.com/ALTROLL_2" class="social-icon" data-icon-id="twitter" title="Twitter" aria-label="Twitter">
                 <i class="fab fa-twitter"></i>
             </a>
-            <a href="https://discord.gg/SKxPYVUV8Q" class="social-icon" title="Discord" aria-label="Discord">
+            <a href="https://discord.gg/SKxPYVUV8Q" class="social-icon" data-icon-id="discord" title="Discord" aria-label="Discord">
                 <i class="fab fa-discord"></i>
             </a>
-            <a href="https://youtube.com/@altroll-moon" class="social-icon" title="YouTube" aria-label="YouTube">
+            <a href="https://youtube.com/@altroll-moon" class="social-icon" data-icon-id="youtube" title="YouTube" aria-label="YouTube">
                 <i class="fab fa-youtube"></i>
             </a>
-            <a href="https://roblox.com/users/1392202663/profile" class="social-icon" title="Roblox" aria-label="Roblox">
+            <a href="https://roblox.com/users/1392202663/profile" class="social-icon" data-icon-id="roblox" title="Roblox" aria-label="Roblox">
                 <i class="fas fa-gamepad"></i>
             </a>
         </div>
@@ -761,10 +922,14 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>© 2025 <a href="https://discord.gg/SKxPYVUV8Q">ALTROLL</a> • Moon Animator Specialist</p>
+            <p>© <span id="current-year"></span> <a href="https://discord.gg/SKxPYVUV8Q">ALTROLL</a> • Moon Animator Specialist</p>
         </div>
     </div>
 
+    <script>
+        // Set current year dynamically
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
     <script>
         // Three.js 3D Realistic Interactive Black Hole
         const canvas = document.getElementById('canvas-container');
@@ -1181,6 +1346,8 @@
         const mainContent = document.querySelector('.main-content');
         const entryText = document.getElementById('entry-text');
         const audio = new Audio('wof.mp3');
+        const typewriterSound = new Audio('Untitled video - Made with Clipchamp.mp3');
+        typewriterSound.volume = 0.15; // Reduce volume to 15%
 
         // Typewriter effect
         const text = 'ALTROLL';
@@ -1210,22 +1377,77 @@
         // Start typewriter animation
         typeWriter();
 
-        entryScreen.addEventListener('click', () => {
-            // Play audio
-            audio.play().catch(err => console.log('Audio play failed:', err));
-            
-            // Remove blur and hide entry screen
-            entryScreen.classList.add('hidden');
-            mainContent.classList.add('loaded');
-            
-            // Start typewriter loading effect immediately
-            startTypewriterEffect();
-            
-            // Remove entry screen from DOM after transition
-            setTimeout(() => {
-                entryScreen.style.display = 'none';
-            }, 800);
-        });
+        const socialIconButtons = Array.from(document.querySelectorAll('.social-icon'));
+        mainContent.setAttribute('aria-hidden', 'true');
+
+        const introTimeouts = [];
+        let currentTypewriters = [];
+        let typewriterSequenceStarted = false;
+
+        function queueTimeout(fn, delay) {
+            const id = setTimeout(() => {
+                const idx = introTimeouts.indexOf(id);
+                if (idx !== -1) {
+                    introTimeouts.splice(idx, 1);
+                }
+                fn();
+            }, delay);
+            introTimeouts.push(id);
+            return id;
+        }
+
+        function clearIntroTimeouts() {
+            while (introTimeouts.length) {
+                clearTimeout(introTimeouts.pop());
+            }
+        }
+
+        function revealAllSectionsInstantly() {
+            const profile = document.querySelector('.profile');
+            if (profile) {
+                profile.classList.add('tw-visible');
+                profile.style.opacity = '1';
+                profile.style.transform = 'none';
+                const bioLine1 = profile.querySelector('.bio-line-1');
+                const bioLine2 = profile.querySelector('.bio-line-2');
+                if (bioLine1) bioLine1.style.opacity = '1';
+                if (bioLine2) bioLine2.style.opacity = '1';
+            }
+
+            const socialIconsGroup = document.querySelector('.social-icons');
+            if (socialIconsGroup) {
+                socialIconsGroup.classList.add('tw-visible');
+            }
+
+            socialIconButtons.forEach(icon => {
+                icon.classList.add('icon-button--visible');
+                icon.style.opacity = '1';
+                icon.style.transform = 'translateY(0) scale(1)';
+            });
+
+            const linksGroup = document.querySelector('.links');
+            if (linksGroup) {
+                linksGroup.classList.add('tw-visible');
+                linksGroup.style.opacity = '1';
+                linksGroup.style.transform = 'translateY(0)';
+                linksGroup.querySelectorAll('.link-item').forEach(link => {
+                    link.classList.add('tw-enter');
+                    link.dataset.revealed = 'true';
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateY(0)';
+                    link.classList.remove('tw-glitch');
+                });
+            }
+
+            const footerSection = document.querySelector('.footer');
+            if (footerSection) {
+                footerSection.classList.add('tw-visible');
+                footerSection.style.opacity = '1';
+                footerSection.style.transform = 'none';
+            }
+        }
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         /**
          * ============================================================================
@@ -1266,6 +1488,11 @@
             };
 
             constructor(element, options = {}) {
+                if (!element) {
+                    console.error('[TypewriterEngine] Cannot create instance: element is null or undefined');
+                    throw new Error('TypewriterEngine requires a valid DOM element');
+                }
+                
                 this.element = element;
                 this.config = { ...TypewriterEngine.CONFIG, ...options };
                 this.state = TypewriterEngine.STATE.IDLE;
@@ -1278,6 +1505,14 @@
                 this.rafId = null;
                 this.cursor = null;
                 this.timeoutId = null;
+                
+                // Page Visibility tracking
+                this.pausedAt = null;
+                this.resumeBufferStarted = null;
+                this.playedPostResumeSound = false;
+                
+                // Typewriter sound
+                this.typewriterAudio = options.typewriterAudio || null;
                 
                 // Callbacks
                 this.onCharCallback = options.onChar || null;
@@ -1370,8 +1605,54 @@
             _tick(timestamp) {
                 if (this.state !== TypewriterEngine.STATE.TYPING) return;
                 
+                // Auto-pause if page is hidden (stores pausedAt timestamp)
+                if (document.hidden) {
+                    if (!this.pausedAt) {
+                        this.pausedAt = timestamp;
+                        console.log('[Typewriter] Page hidden - pausing typewriter and sound scheduling');
+                    }
+                    this.rafId = requestAnimationFrame(this._tick);
+                    return;
+                }
+                
+                // Resume handling: wait 50-75ms, reveal at most 1 character with 1 sound
+                if (this.pausedAt) {
+                    const pauseDuration = timestamp - this.pausedAt;
+                    console.log(`[Typewriter] Page visible after ${pauseDuration.toFixed(0)}ms pause - revealing max 1 character`);
+                    
+                    // Wait 50-75ms buffer before resuming
+                    if (!this.resumeBufferStarted) {
+                        this.resumeBufferStarted = timestamp;
+                    }
+                    
+                    const bufferElapsed = timestamp - this.resumeBufferStarted;
+                    if (bufferElapsed < 65) { // ~65ms buffer (middle of 50-75ms range)
+                        this.rafId = requestAnimationFrame(this._tick);
+                        return;
+                    }
+                    
+                    // Reveal exactly 1 character (no catch-up burst)
+                    if (this.currentIndex < this.tokens.length) {
+                        this._renderToken(this.currentIndex, true); // Pass flag to gate sound
+                        this.currentIndex++;
+                    }
+                    
+                    // Reset pause state and continue normal rendering
+                    this.pausedAt = null;
+                    this.resumeBufferStarted = null;
+                    this.lastTimestamp = timestamp;
+                    this.accumulator = 0; // Reset accumulator to prevent catch-up
+                    this.rafId = requestAnimationFrame(this._tick);
+                    return;
+                }
+                
                 const delta = timestamp - this.lastTimestamp;
                 this.lastTimestamp = timestamp;
+                
+                // Reset post-resume sound gate in normal flow
+                if (this.playedPostResumeSound) {
+                    this.playedPostResumeSound = false;
+                }
                 
                 this.accumulator += delta;
                 
@@ -1382,7 +1663,7 @@
                 
                 // Render characters that are due
                 while (this.accumulator >= speed && this.currentIndex < this.tokens.length) {
-                    this._renderToken(this.currentIndex);
+                    this._renderToken(this.currentIndex, false); // Normal sound gating
                     this.currentIndex++;
                     this.accumulator -= speed;
                     
@@ -1404,8 +1685,10 @@
 
             /**
              * Render a single token without DOM thrashing
+             * @param {number} index - Token index
+             * @param {boolean} postResume - True if this is the first character after tab resume (limits sound)
              */
-            _renderToken(index) {
+            _renderToken(index, postResume = false) {
                 const token = this.tokens[index];
                 
                 if (token.type === 'char') {
@@ -1423,10 +1706,29 @@
                     // Re-add cursor
                     this.element.appendChild(this.cursor);
                     
+                    // Play typewriter sound (clone audio for overlapping sounds)
+                    // Gate sound on post-resume: play max 1 sound, never burst
+                    if (this.typewriterAudio && !this.reducedMotion && (!postResume || !this.playedPostResumeSound)) {
+                        const sound = this.typewriterAudio.cloneNode();
+                        sound.volume = this.typewriterAudio.volume;
+                        sound.play().catch(() => {
+                            // Silently fail if audio cannot play
+                        });
+                        
+                        if (postResume) {
+                            this.playedPostResumeSound = true;
+                            console.log('[Typewriter] Played 1 sound after resume - further sounds gated until next pause');
+                        }
+                    }
+                    
                     // Glitch effect (sci-fi)
                     if (!this.reducedMotion && Math.random() < this.config.glitchProbability) {
                         this.element.classList.add('tw-glitch');
-                        setTimeout(() => this.element.classList.remove('tw-glitch'), this.config.glitchDuration);
+                        setTimeout(() => {
+                            if (this.element && this.element.classList) {
+                                this.element.classList.remove('tw-glitch');
+                            }
+                        }, this.config.glitchDuration);
                     }
                     
                     // Callback
@@ -1553,6 +1855,538 @@
             }
         }
 
+            // Simplified social icons pop-in (no flying animation)
+            const AnimationController = (() => {
+                let hasStarted = false;
+                
+                function start() {
+                    if (hasStarted) return;
+                    hasStarted = true;
+                    
+                    // Make social icons container visible
+                    const socialIconsContainer = document.querySelector('.social-icons');
+                    if (socialIconsContainer) {
+                        socialIconsContainer.classList.add('tw-visible');
+                    }
+                    
+                    // Stagger pop-in for each icon
+                    socialIconButtons.forEach((btn, index) => {
+                        queueTimeout(() => {
+                            btn.classList.add('icon-button--visible', 'icon-button--pop');
+                            queueTimeout(() => btn.classList.remove('icon-button--pop'), 420);
+                        }, index * 150); // 150ms stagger
+                    });
+                }
+                
+                function skipToEnd() {
+                    if (!hasStarted) {
+                        start();
+                    }
+                    // Instantly show all icons
+                    socialIconButtons.forEach(btn => {
+                        btn.classList.add('icon-button--visible');
+                        btn.classList.remove('icon-button--pop');
+                    });
+                }
+                
+                function onPhase(phase, cb) {
+                    // Simplified - not needed
+                    return () => {};
+                }
+                
+                function setReducedMotion(value) {
+                    // Not needed for simple pop-in
+                }
+                
+                return { start, skipToEnd, onPhase, setReducedMotion };
+            })();
+
+            window.Anim = AnimationController;
+
+        /**
+         * ============================================================================
+         * ORCHESTRATION: Smooth UI Appearance + Typewriter Sequence
+         * ============================================================================
+         */
+
+        // OLD ANIMATION CONTROLLER CODE REMOVED - keeping marker
+        const REMOVED_OLD_ANIMATION_CODE = true;
+        if (false) {
+                function computeScale(progress, popStrength) {
+                    if (progress < 0.6) {
+                        return 0.3 + (popStrength - 0.3) * (progress / 0.6);
+                    }
+                    const tail = (progress - 0.6) / 0.4;
+                    return popStrength - (popStrength - 1) * Math.min(tail, 1);
+                }
+
+                function applyEasing(t) {
+                    switch (globalConfig.easing) {
+                        case 'linear':
+                            return Math.min(Math.max(t, 0), 1);
+                        case 'easeInOutCubic':
+                            return t < 0.5
+                                ? 4 * t * t * t
+                                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                        default:
+                            return easeOutCubic(t);
+                    }
+                }
+
+                function prepareIcons() {
+                    iconStates = iconConfigs.map(config => {
+                        const slot = socialIconButtons.find(btn => btn.dataset.iconId === config.id);
+                        if (!slot) {
+                            console.warn(`Missing social icon slot for ${config.id}`);
+                            return null;
+                        }
+                        const launchEl = document.createElement('div');
+                        launchEl.className = 'icon-launch';
+                        const iconClone = slot.querySelector('i').cloneNode(true);
+                        launchEl.appendChild(iconClone);
+                        iconFlightLayer.appendChild(launchEl);
+
+                        const prevTabIndex = slot.getAttribute('tabindex');
+                        if (prevTabIndex !== null) {
+                            slot.dataset.prevTabIndex = prevTabIndex;
+                        }
+                        slot.setAttribute('tabindex', '-1');
+
+                        // Measure position in FINAL visible state (not default shifted state)
+                        // Temporarily apply visible class to measure where it will be, then remove it
+                        const hadVisibleClass = slot.classList.contains('icon-button--visible');
+                        if (!hadVisibleClass) {
+                            slot.classList.add('icon-button--visible');
+                            slot.style.transition = 'none'; // Disable transition during measurement
+                        }
+                        
+                        // Force layout recalculation
+                        const slotRect = slot.getBoundingClientRect();
+                        const targetCenterX = slotRect.left + slotRect.width / 2;
+                        const targetCenterY = slotRect.top + slotRect.height / 2;
+                        
+                        // Remove visible class and restore state
+                        if (!hadVisibleClass) {
+                            slot.classList.remove('icon-button--visible');
+                            // Re-enable transition after a frame
+                            requestAnimationFrame(() => {
+                                slot.style.transition = '';
+                            });
+                        }
+                        
+                        console.log(`[IconLanding] ${config.id} final visible position cached:`, {
+                            centerX: targetCenterX.toFixed(2),
+                            centerY: targetCenterY.toFixed(2),
+                            slotRect: { left: slotRect.left, top: slotRect.top, width: slotRect.width, height: slotRect.height }
+                        });
+
+                        return {
+                            config,
+                            slot,
+                            launchEl,
+                            status: 'idle',
+                            nextLogIndex: 0,
+                            start: { x: 0, y: 0 },
+                            stageA: { x: 0, y: 0 }, // Point above target
+                            targetCenter: { x: targetCenterX, y: targetCenterY }, // Cached default position
+                            end: { x: 0, y: 0 }, // Will be computed relative to layer
+                            cp1: { x: 0, y: 0 },
+                            cp2: { x: 0, y: 0 },
+                            finalError: null // Track landing precision
+                        };
+                    }).filter(Boolean);
+
+                    computeIconGeometry();
+                }
+
+                function computeIconGeometry() {
+                    const layerRect = iconFlightLayer.getBoundingClientRect();
+                    const globeRect = globeProxy.getBoundingClientRect();
+                    const safeX = layerRect.width * 0.05;
+                    const safeY = layerRect.height * 0.05;
+                    const aboveOffsetPx = 60; // Distance above target for stage A
+
+                    iconStates.forEach(state => {
+                        const startRelX = globeRect.left - layerRect.left + globeRect.width * state.config.origin.x;
+                        const startRelY = globeRect.top - layerRect.top + globeRect.height * state.config.origin.y;
+                        const clampedStartX = clamp(startRelX, safeX, layerRect.width - safeX);
+                        const clampedStartY = clamp(startRelY, safeY, layerRect.height - safeY);
+                        
+                        // Use cached targetCenter as authoritative end position (convert to layer-relative)
+                        const endX = state.targetCenter.x - layerRect.left;
+                        const endY = state.targetCenter.y - layerRect.top;
+                        
+                        // Stage A: point above target
+                        const stageAX = endX;
+                        const stageAY = endY - aboveOffsetPx;
+
+                        state.start.x = clampedStartX;
+                        state.start.y = clampedStartY;
+                        state.stageA.x = stageAX;
+                        state.stageA.y = stageAY;
+                        state.end.x = endX;
+                        state.end.y = endY;
+
+                        // Bezier to stage A
+                        const dx = stageAX - clampedStartX;
+                        const dy = stageAY - clampedStartY;
+
+                        state.cp1.x = clampedStartX + dx * 0.28 + state.config.curvature.x * layerRect.width * 0.25;
+                        state.cp1.y = clampedStartY + dy * 0.18 + state.config.curvature.y * layerRect.height * 0.22;
+                        state.cp2.x = clampedStartX + dx * 0.68 + state.config.curvature.x * layerRect.width * 0.18;
+                        state.cp2.y = clampedStartY + dy * 0.78 + state.config.curvature.y * layerRect.height * 0.15;
+
+                        state.launchEl.style.transform = `translate3d(${state.start.x}px, ${state.start.y}px, 0) scale(0.3)`;
+                        state.launchEl.style.transformOrigin = 'center center';
+                        state.launchEl.style.opacity = 0;
+                        state.launchEl.style.setProperty('--trail-alpha', '0');
+                        
+                        console.log(`[IconGeometry] ${state.config.id} computed:`, {
+                            start: { x: clampedStartX.toFixed(2), y: clampedStartY.toFixed(2) },
+                            stageA: { x: stageAX.toFixed(2), y: stageAY.toFixed(2) },
+                            end: { x: endX.toFixed(2), y: endY.toFixed(2) }
+                        });
+                    });
+                }
+
+                function transitionTo(phase) {
+                    if (currentPhase === phase) return;
+                    currentPhase = phase;
+                    phaseTime = 0;
+                    console.log(`[Animation] Phase -> ${phase}`);
+                    const handlers = listeners.get(phase);
+                    if (handlers) {
+                        handlers.forEach(cb => cb());
+                    }
+
+                    if (phase === 'settle') {
+                        console.log('[Animation] Settle phase started at:', performance.now());
+                        // After icons settle, trigger links and footer reveal
+                        queueTimeout(() => {
+                            if (window._iconsSettledCallback) {
+                                window._iconsSettledCallback();
+                            }
+                        }, 500); // Small delay for visual breathing room
+                    } else if (phase === 'typewriter') {
+                        startTypewriterPhase();
+                    }
+                }
+
+                function startTypewriterPhase() {
+                    if (typewriterPhaseTriggered) return;
+                    typewriterPhaseTriggered = true;
+                    skipButton.classList.remove('visible');
+                    skipButton.disabled = true;
+                    skipButton.setAttribute('aria-hidden', 'true');
+                    if (!typewriterSequenceStarted) {
+                        currentTypewriters = startTypewriterEffect();
+                        typewriterSequenceStarted = true;
+                    }
+                }
+
+                function updateIconFlights() {
+                    iconStates.forEach(state => {
+                        if (state.status === 'settled') return;
+                        const localTime = Math.max(0, phaseTime - state.config.delay);
+                        const stageDuration = state.config.duration * 0.75; // 75% for stage A (arc to above)
+                        const dropDuration = state.config.duration * 0.25; // 25% for stage B (drop to exact center)
+                        
+                        if (localTime <= 0) return;
+                        
+                        let point, scale;
+                        
+                        if (localTime < stageDuration) {
+                            // Stage A: Arc from globe to point above target
+                            const rawProgress = localTime / stageDuration;
+                            const eased = applyEasing(rawProgress);
+                            point = cubicBezierPoint(state.start, state.cp1, state.cp2, state.stageA, eased);
+                            scale = computeScale(eased, state.config.popStrength);
+                            
+                            state.launchEl.style.opacity = 1;
+                            state.launchEl.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) scale(${scale.toFixed(3)})`;
+                            const trail = Math.max(0, (1 - eased) * state.config.trailIntensity);
+                            state.launchEl.style.setProperty('--trail-alpha', trail.toFixed(3));
+                            
+                            // Log stage A checkpoints
+                            while (state.nextLogIndex < LOG_CHECKPOINTS.length && eased >= LOG_CHECKPOINTS[state.nextLogIndex] - 0.001) {
+                                console.log(`[Animation] ${state.config.id} stage A progress ${LOG_CHECKPOINTS[state.nextLogIndex].toFixed(2)}`);
+                                state.nextLogIndex++;
+                            }
+                        } else {
+                            // Stage B: Ease down from stageA to exact cached target
+                            const dropTime = localTime - stageDuration;
+                            const dropProgress = Math.min(dropTime / dropDuration, 1);
+                            const dropEased = easeOutCubic(dropProgress); // Smooth ease for precision landing
+                            
+                            // Linear interpolation from stageA to exact end
+                            const x = state.stageA.x + (state.end.x - state.stageA.x) * dropEased;
+                            const y = state.stageA.y + (state.end.y - state.stageA.y) * dropEased;
+                            scale = 1.0 + (state.config.popStrength - 1.0) * (1 - dropEased); // Scale to 1.0 at landing
+                            
+                            state.launchEl.style.opacity = 1;
+                            state.launchEl.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale.toFixed(3)})`;
+                            state.launchEl.style.setProperty('--trail-alpha', '0');
+                            
+                            if (dropProgress >= 1) {
+                                // Stage B complete - verify precision and apply corrective snap if needed
+                                const layerRect = iconFlightLayer.getBoundingClientRect();
+                                const finalX = state.end.x;
+                                const finalY = state.end.y;
+                                const targetX = state.targetCenter.x - layerRect.left;
+                                const targetY = state.targetCenter.y - layerRect.top;
+                                const errorX = Math.abs(finalX - targetX);
+                                const errorY = Math.abs(finalY - targetY);
+                                const totalError = Math.sqrt(errorX * errorX + errorY * errorY);
+                                
+                                state.finalError = totalError;
+                                
+                                console.log(`[IconLanding] ${state.config.id} stage B complete:`, {
+                                    stageA: { x: state.stageA.x.toFixed(2), y: state.stageA.y.toFixed(2) },
+                                    final: { x: finalX.toFixed(2), y: finalY.toFixed(2) },
+                                    target: { x: targetX.toFixed(2), y: targetY.toFixed(2) },
+                                    error: totalError.toFixed(4) + 'px'
+                                });
+                                
+                                // Apply corrective snap if error > 0.5px tolerance
+                                if (totalError > 0.5) {
+                                    console.warn(`[IconLanding] ${state.config.id} error ${totalError.toFixed(4)}px > 0.5px tolerance - applying corrective snap`);
+                                    state.launchEl.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1.0)`;
+                                } else {
+                                    console.log(`[IconLanding] ✓ ${state.config.id} landed within tolerance (${totalError.toFixed(4)}px ≤ 0.5px)`);
+                                }
+                                
+                                settleIcon(state);
+                            }
+                        }
+                    });
+
+                    if (iconStates.every(state => state.status === 'settled')) {
+                        console.log('[Animation] All icons settled at:', performance.now());
+                        const maxError = Math.max(...iconStates.map(s => s.finalError || 0));
+                        const avgError = iconStates.reduce((sum, s) => sum + (s.finalError || 0), 0) / iconStates.length;
+                        console.log(`[IconLanding] Precision summary: max=${maxError.toFixed(4)}px, avg=${avgError.toFixed(4)}px`);
+                        transitionTo('settle');
+                    }
+                }
+
+                function settleIcon(state, instant = false) {
+                    if (state.status === 'settled') return;
+                    state.status = 'settled';
+                    state.launchEl.style.opacity = 0;
+                    state.launchEl.style.setProperty('--trail-alpha', '0');
+                    state.launchEl.style.willChange = 'auto';
+
+                    const slot = state.slot;
+                    slot.classList.add('icon-button--visible');
+                    if (!instant) {
+                        slot.classList.add('icon-button--pop');
+                        queueTimeout(() => slot.classList.remove('icon-button--pop'), 420);
+                    } else {
+                        slot.classList.remove('icon-button--pop');
+                    }
+
+                    if (slot.dataset.prevTabIndex !== undefined) {
+                        slot.setAttribute('tabindex', slot.dataset.prevTabIndex);
+                    } else {
+                        slot.removeAttribute('tabindex');
+                    }
+
+                    if (!instant && !reducedMotion) {
+                        spawnArrivalEffects(slot, state.config);
+                    }
+                }
+
+                function spawnArrivalEffects(slot, config) {
+                    const bloom = document.createElement('span');
+                    bloom.className = 'icon-bloom';
+                    bloom.style.background = `radial-gradient(circle, ${globalConfig.bloomColor}, rgba(148,163,184,0))`;
+                    slot.appendChild(bloom);
+                    queueTimeout(() => bloom.remove(), 420);
+
+                    const ring = document.createElement('span');
+                    ring.className = 'icon-ring';
+                    slot.appendChild(ring);
+                    queueTimeout(() => ring.remove(), 460);
+
+                    const sparks = Math.min(config.sparkCount || 4, globalConfig.particleBudget);
+                    for (let i = 0; i < sparks; i++) {
+                        const spark = document.createElement('span');
+                        spark.className = 'icon-spark';
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 18 + Math.random() * 12;
+                        spark.style.setProperty('--spark-x', `${Math.cos(angle) * distance}px`);
+                        spark.style.setProperty('--spark-y', `${Math.sin(angle) * distance}px`);
+                        slot.appendChild(spark);
+                        queueTimeout(() => spark.remove(), 360);
+                    }
+                }
+
+                function applyUIReveal() {
+                    if (uiRevealApplied) return;
+                    uiRevealApplied = true;
+                    console.log('[Animation] Removing blur and revealing UI at timestamp:', performance.now());
+                    console.log('[Animation] mainContent element:', mainContent);
+                    console.log('[Animation] Adding "loaded" class...');
+                    mainContent.classList.add('loaded');
+                    console.log('[Animation] Classes after add:', mainContent.className);
+                    mainContent.setAttribute('aria-hidden', 'false');
+                    
+                    // Force style recalculation
+                    requestAnimationFrame(() => {
+                        const computedStyle = window.getComputedStyle(mainContent);
+                        console.log('[Animation] Computed filter after class add:', computedStyle.filter);
+                    });
+                }
+
+                function runLoop(timestamp) {
+                    if (!active) return;
+                    if (!lastTimestamp) {
+                        lastTimestamp = timestamp;
+                    }
+                    const delta = Math.min(globalConfig.maxDelta, timestamp - lastTimestamp);
+                    lastTimestamp = timestamp;
+                    phaseTime += delta;
+
+                    if (currentPhase === 'globeLaunch') {
+                        updateIconFlights();
+                    } else if (currentPhase === 'settle' && phaseTime >= globalConfig.settleHold) {
+                        transitionTo('typewriter');
+                    }
+
+                    if (active && currentPhase !== 'typewriter') {
+                        rafId = requestAnimationFrame(runLoop);
+                    } else {
+                        active = false;
+                    }
+                }
+
+                function start() {
+                    if (hasStarted) return;
+                    hasStarted = true;
+
+                    if (reducedMotion) {
+                        iconStates.forEach(state => settleIcon(state, true));
+                        transitionTo('settle');
+                        transitionTo('typewriter');
+                        return;
+                    }
+
+                    skipButton.classList.add('visible');
+                    skipButton.disabled = false;
+                    skipButton.setAttribute('aria-hidden', 'false');
+                    
+                    // Make social icons container visible for animation
+                    const socialIconsContainer = document.querySelector('.social-icons');
+                    if (socialIconsContainer) {
+                        socialIconsContainer.classList.add('tw-visible');
+                    }
+                    
+                    iconStates.forEach(state => {
+                        state.launchEl.style.opacity = 1;
+                        state.launchEl.style.willChange = 'transform';
+                    });
+
+                    transitionTo('globeLaunch');
+                    active = true;
+                    lastTimestamp = 0;
+                    rafId = requestAnimationFrame(runLoop);
+                }
+
+                function skipToEnd() {
+                    console.log('[Animation] Skip requested – fast-forwarding intro');
+                    hasStarted = true;
+                    clearIntroTimeouts();
+                    if (rafId) {
+                        cancelAnimationFrame(rafId);
+                        rafId = null;
+                    }
+                    active = false;
+                    iconStates.forEach(state => {
+                        settleIcon(state, true);
+                        state.slot.querySelectorAll('.icon-bloom, .icon-ring, .icon-spark').forEach(node => node.remove());
+                    });
+                    transitionTo('settle');
+                    transitionTo('typewriter');
+                    clearIntroTimeouts();
+                    if (!typewriterSequenceStarted) {
+                        currentTypewriters = startTypewriterEffect();
+                        typewriterSequenceStarted = true;
+                    }
+                    revealAllSectionsInstantly();
+                    if (currentTypewriters.length) {
+                        currentTypewriters.forEach(tw => tw.skip());
+                    }
+                    skipButton.classList.remove('visible');
+                    skipButton.disabled = true;
+                    skipButton.setAttribute('aria-hidden', 'true');
+                    entryScreen.classList.add('hidden');
+                    entryScreen.style.display = 'none';
+                }
+
+                function onPhase(phase, cb) {
+                    if (!listeners.has(phase)) {
+                        listeners.set(phase, []);
+                    }
+                    listeners.get(phase).push(cb);
+                    return () => {
+                        const arr = listeners.get(phase);
+                        if (!arr) return;
+                        const idx = arr.indexOf(cb);
+                        if (idx !== -1) {
+                            arr.splice(idx, 1);
+                        }
+                    };
+                }
+
+                function setReducedMotion(value) {
+                    reducedMotion = value;
+                    globalConfig.reducedMotion = value;
+                    if (!hasStarted) {
+                        socialIconButtons.forEach(btn => btn.classList.remove('icon-button--visible'));
+                        computeIconGeometry();
+                    }
+                }
+
+                prepareIcons();
+
+                window.addEventListener('resize', () => {
+                    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+                    resizeRaf = requestAnimationFrame(() => {
+                        if (!hasStarted) {
+                            // Re-measure target positions only if animation hasn't started
+                            console.log('[IconLanding] Resize detected before animation start - re-measuring targets');
+                            iconStates.forEach(state => {
+                                // Measure in final visible state
+                                const hadVisibleClass = state.slot.classList.contains('icon-button--visible');
+                                if (!hadVisibleClass) {
+                                    state.slot.classList.add('icon-button--visible');
+                                    state.slot.style.transition = 'none';
+                                }
+                                
+                                const slotRect = state.slot.getBoundingClientRect();
+                                state.targetCenter.x = slotRect.left + slotRect.width / 2;
+                                state.targetCenter.y = slotRect.top + slotRect.height / 2;
+                                
+                                if (!hadVisibleClass) {
+                                    state.slot.classList.remove('icon-button--visible');
+                                    requestAnimationFrame(() => {
+                                        state.slot.style.transition = '';
+                                    });
+                                }
+                                
+                                console.log(`[IconLanding] ${state.config.id} target updated:`, {
+                                    x: state.targetCenter.x.toFixed(2),
+                                    y: state.targetCenter.y.toFixed(2)
+                                });
+                            });
+                            computeIconGeometry();
+                        } else {
+                            console.log('[IconLanding] Resize ignored - animation has started, targets locked');
+                        }
+                    });
+                });
+        }
+
         /**
          * ============================================================================
          * ORCHESTRATION: Smooth UI Appearance + Typewriter Sequence
@@ -1560,6 +2394,7 @@
          */
 
         function startTypewriterEffect() {
+            typewriterSequenceStarted = true;
             const profile = document.querySelector('.profile');
             const socialIcons = document.querySelector('.social-icons');
             const links = document.querySelector('.links');
@@ -1568,20 +2403,22 @@
             // Typewriter instances (cleanup later)
             const typewriters = [];
             let sequenceDelay = 0;
+            let isPaused = false;
+            let pauseStartTime = 0;
 
             /**
              * Helper: Stagger element entrance with GPU-friendly transforms
              */
             function staggerEntrance(elements, startDelay) {
                 elements.forEach((el, index) => {
-                    setTimeout(() => {
+                    queueTimeout(() => {
                         el.classList.add('tw-enter');
                     }, startDelay + (index * TypewriterEngine.CONFIG.staggerDelay));
                 });
             }
 
             // 1. PROFILE SECTION
-            setTimeout(() => {
+            queueTimeout(() => {
                 profile.classList.add('tw-visible');
                 
                 const h1 = profile.querySelector('h1');
@@ -1591,7 +2428,8 @@
                 if (h1) {
                     const tw1 = new TypewriterEngine(h1, {
                         baseSpeed: 60,
-                        glitchProbability: 0.2
+                        glitchProbability: 0.2,
+                        typewriterAudio: typewriterSound
                     });
                     
                     tw1.onComplete(() => {
@@ -1600,7 +2438,8 @@
                             bioLine1.style.opacity = '1'; // Show before typing
                             const tw2 = new TypewriterEngine(bioLine1, {
                                 baseSpeed: 40,
-                                glitchProbability: 0.1
+                                glitchProbability: 0.1,
+                                typewriterAudio: typewriterSound
                             });
                             
                             tw2.onComplete(() => {
@@ -1609,8 +2448,21 @@
                                     bioLine2.style.opacity = '1'; // Show before typing
                                     const tw3 = new TypewriterEngine(bioLine2, {
                                         baseSpeed: 40,
-                                        glitchProbability: 0.05
+                                        glitchProbability: 0.05,
+                                        typewriterAudio: typewriterSound
                                     });
+                                    
+                                    tw3.onComplete(() => {
+                                        // After bio description completes, show social icons with pop-in
+                                        console.log('[Animation] Bio complete - showing social icons');
+                                        AnimationController.start();
+                                        
+                                        // Show links and footer after a short delay
+                                        queueTimeout(() => {
+                                            showLinksAndFooter();
+                                        }, 800);
+                                    });
+                                    
                                     tw3.start();
                                     typewriters.push(tw3);
                                 }
@@ -1625,102 +2477,110 @@
                     typewriters.push(tw1);
                 }
             }, sequenceDelay);
-            sequenceDelay += 3500;
-
-            // 2. SOCIAL ICONS
-            setTimeout(() => {
-                socialIcons.classList.add('tw-visible');
-                const icons = Array.from(socialIcons.querySelectorAll('.social-icon'));
-                staggerEntrance(icons, 0);
-            }, sequenceDelay);
-            sequenceDelay += 800;
-
-            // 3. LINKS SECTION
-            setTimeout(() => {
+            
+            // 2. SOCIAL ICONS - Now handled by AnimationController.start() after bio completes
+            
+            // Simple function to show links and footer without typewriter effects
+            function showLinksAndFooter() {
+                // 3. LINKS SECTION - Simple fade-in stagger
                 links.classList.add('tw-visible');
+                links.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                links.style.opacity = '1';
+                links.style.transform = 'translateY(0)';
+                
                 const linkItems = Array.from(links.querySelectorAll('.link-item'));
                 
                 linkItems.forEach((link, i) => {
-                    setTimeout(() => {
+                    queueTimeout(() => {
                         link.classList.add('tw-enter');
-                        
-                        // Glitch effect on alternating links
-                        if (i % 2 === 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                            setTimeout(() => {
-                                link.classList.add('tw-glitch');
-                                setTimeout(() => link.classList.remove('tw-glitch'), 300);
-                            }, 100);
-                        }
-                        
-                        // Type link title
-                        const title = link.querySelector('.link-title');
-                        const desc = link.querySelector('.link-description');
-                        
-                        if (title) {
-                            const twTitle = new TypewriterEngine(title, {
-                                baseSpeed: 35,
-                                glitchProbability: 0.05
-                            });
-                            
-                            twTitle.onComplete(() => {
-                                // Type description after title
-                                if (desc) {
-                                    const twDesc = new TypewriterEngine(desc, {
-                                        baseSpeed: 25,
-                                        glitchProbability: 0
-                                    });
-                                    twDesc.start();
-                                    typewriters.push(twDesc);
-                                }
-                            });
-                            
-                            setTimeout(() => twTitle.start(), 150);
-                            typewriters.push(twTitle);
-                        }
-                    }, i * 500);
+                        link.style.opacity = '1';
+                        link.style.transform = 'translateY(0)';
+                    }, i * 150); // Stagger by 150ms
                 });
-            }, sequenceDelay);
-            sequenceDelay += 4000;
-
-            // 4. FOOTER
-            setTimeout(() => {
-                footer.classList.add('tw-visible');
-                const footerP = footer.querySelector('p');
                 
-                if (footerP) {
-                    const twFooter = new TypewriterEngine(footerP, {
-                        baseSpeed: 30,
-                        glitchProbability: 0.05
-                    });
-                    
-                    twFooter.onComplete(() => {
-                        console.log('✓ Typewriter sequence completed');
-                        // Cleanup all typewriters
-                        typewriters.forEach(tw => tw.destroy());
-                    });
-                    
-                    twFooter.start();
-                    typewriters.push(twFooter);
-                }
-            }, sequenceDelay);
+                // 4. FOOTER - Simple fade-in with transition
+                queueTimeout(() => {
+                    footer.classList.add('tw-visible');
+                    footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    footer.style.opacity = '1';
+                    footer.style.transform = 'translateY(0)';
+                    console.log('✓ UI sequence completed');
+                    // Cleanup typewriters
+                    typewriters.forEach(tw => tw.destroy());
+                }, linkItems.length * 150 + 500); // After all links + 500ms delay
+            }
 
             // Handle visibility change (tab backgrounding)
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
+                    isPaused = true;
+                    pauseStartTime = performance.now();
+                    // Pause all active typewriters
                     typewriters.forEach(tw => {
                         if (tw.state === TypewriterEngine.STATE.TYPING) {
                             tw.pause();
                         }
                     });
-                } else {
+                } else if (isPaused) {
+                    isPaused = false;
+                    // Resume all paused typewriters
                     typewriters.forEach(tw => {
                         if (tw.state === TypewriterEngine.STATE.PAUSED) {
+                            const originalAudio = tw.typewriterAudio;
+                            tw.typewriterAudio = null;
                             tw.resume();
+                            queueTimeout(() => {
+                                tw.typewriterAudio = originalAudio;
+                            }, 420);
                         }
                     });
                 }
             });
+
+            currentTypewriters = typewriters;
+            return typewriters;
         }
+
+        prefersReducedMotion.addEventListener('change', event => {
+            AnimationController.setReducedMotion(event.matches);
+        });
+
+        entryScreen.addEventListener('click', () => {
+            audio.play().catch(err => console.log('Audio play failed:', err));
+            entryScreen.classList.add('hidden');
+            
+            // Start typewriter first - icon animation will trigger after bio completes
+            mainContent.setAttribute('aria-hidden', 'false');
+            if (!typewriterSequenceStarted) {
+                startTypewriterEffect();
+            }
+            
+            queueTimeout(() => {
+                entryScreen.style.display = 'none';
+                // Show toggle button after entry screen is gone
+                const toggleBtn = document.getElementById('toggle-ui-btn');
+                toggleBtn.classList.add('visible');
+            }, 820);
+        });
+
+        // Toggle UI Visibility
+        const toggleBtn = document.getElementById('toggle-ui-btn');
+        const toggleIcon = toggleBtn.querySelector('i');
+        let uiVisible = true;
+
+        toggleBtn.addEventListener('click', () => {
+            uiVisible = !uiVisible;
+            
+            if (uiVisible) {
+                mainContent.classList.remove('hidden');
+                toggleIcon.className = 'fas fa-eye-slash';
+                toggleBtn.title = 'Hide UI';
+            } else {
+                mainContent.classList.add('hidden');
+                toggleIcon.className = 'fas fa-eye';
+                toggleBtn.title = 'Show UI';
+            }
+        });
     </script>
 </body>
 </html>
