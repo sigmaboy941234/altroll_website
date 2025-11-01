@@ -1023,18 +1023,26 @@
         const segmentCount = 20; // Number of wireframe pieces
         
         for (let i = 0; i < segmentCount; i++) {
-            const segmentGeometry = new THREE.SphereGeometry(planetRadius, 8, 8, 
-                (i / segmentCount) * Math.PI * 2, 
-                (Math.PI * 2) / segmentCount,
-                0, 
-                Math.PI
+            // Create segments that divide the sphere into distinct pieces
+            // Using both theta and phi ranges to create wedge-like segments
+            const thetaStart = (i / segmentCount) * Math.PI * 2;
+            const thetaLength = (Math.PI * 2) / segmentCount;
+            const phiStart = (i % 2 === 0) ? 0 : Math.PI / 2;
+            const phiLength = Math.PI / 2;
+            
+            const segmentGeometry = new THREE.SphereGeometry(
+                planetRadius, 8, 8, 
+                thetaStart, 
+                thetaLength,
+                phiStart, 
+                phiLength
             );
             
             const segmentMaterial = new THREE.MeshBasicMaterial({
                 color: 0x666666,
                 wireframe: true,
                 transparent: true,
-                opacity: 0.5
+                opacity: 0.0 // Start invisible
             });
             
             const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
@@ -1379,9 +1387,10 @@
         
         // Animation loop
         let time = 0;
+        let lastFrameTime = performance.now();
         
         // Intro sequence update function
-        function updateIntroSequence(currentTime) {
+        function updateIntroSequence(currentTime, deltaTime) {
             const elapsed = currentTime - introState.startTime;
             const phase = introState.phase;
             
@@ -1484,8 +1493,8 @@
                 const progress = Math.min(elapsed / transitionDuration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
                 
-                // Advance orbit time during transition
-                defaultCameraOrbit.time += 0.016;
+                // Advance orbit time during transition using actual delta time
+                defaultCameraOrbit.time += deltaTime / 1000; // Convert ms to seconds
                 
                 // Interpolate from static position to orbit
                 const staticX = 0;
@@ -1510,8 +1519,10 @@
         
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.016;
             const currentTime = performance.now();
+            const deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+            time += deltaTime / 1000; // Convert ms to seconds
             
             // Animate background elements
             // Slowly rotate background stars
@@ -1546,10 +1557,10 @@
             
             // Handle intro sequence or normal animation
             if (introState.active) {
-                updateIntroSequence(currentTime);
+                updateIntroSequence(currentTime, deltaTime);
             } else {
                 // Normal camera orbit (existing behavior)
-                defaultCameraOrbit.time += 0.016;
+                defaultCameraOrbit.time += deltaTime / 1000; // Convert ms to seconds
                 const orbitTime = defaultCameraOrbit.time;
                 const cameraRadius = defaultCameraOrbit.radius;
                 const cameraHeight = defaultCameraOrbit.height;
