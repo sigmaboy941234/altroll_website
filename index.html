@@ -966,25 +966,35 @@
         scene.fog = new THREE.FogExp2(0x0a0a0a, 0.0015);
         
         // ============================================================================
-        // INTRO SEQUENCE STATE MANAGEMENT
+        // INTRO SEQUENCE STATE MANAGEMENT - CONTINUOUS CHAIN BUILD
         // ============================================================================
         const INTRO_CONFIG = {
-            MIN_SCATTER_DISTANCE: 80,
-            MAX_SCATTER_RANGE: 40,
-            SEGMENT_COUNT: 20
+            segmentDurationMs: 110,          // Time to grow each segment
+            cameraFollowLerp: 0.12,          // Camera follow smoothness
+            cameraFrontBias: 0.5,            // Camera position bias (0-1, higher = more toward end)
+            cameraFrontOffset: 0.25,         // Additional offset for camera positioning
+            zoomOutDurationMs: 700,          // Zoom to static pose
+            poseHoldMs: 700,                 // Hold at static pose
+            handoffDurationMs: 1500,         // Return to original camera
+            finalRadius: 0.15,               // Segment thickness
+            thicknessScale: 5.0,             // Shader thickness scaling factor
+            latSegments: 12,                 // Latitude divisions
+            lonSegments: 16,                 // Longitude divisions
         };
         
         let introState = {
             active: true,
-            phase: 'formation', // phases: formation → zoom_out → static_hold → normal
-            progress: 0,
+            phase: 'idle',                   // idle → building → poseHold → handoff → done
+            currentEdgeIndex: 0,
             startTime: performance.now(),
-            cameraStartPos: null, // Captured at phase transitions
-            phaseDurations: {
-                formation: 4000,      // 4s for wireframes to connect
-                zoom_out: 2000,       // 2s smooth zoom out
-                static_hold: 1000,    // 1s hold at static pose
-                // After this, transition to normal camera orbit
+            phaseStartTime: performance.now(),
+            originalCamera: null,            // Snapshot of original camera
+            originalControls: null,          // Snapshot of controls state
+            cameraTarget: new THREE.Vector3(0, 0, 0),
+            staticPose: {                    // Predefined static framing pose
+                position: new THREE.Vector3(0, 50, 120),
+                target: new THREE.Vector3(0, 0, 0),
+                fov: 75
             }
         };
         
@@ -1025,64 +1035,222 @@
         const planet = new THREE.Mesh(planetGeometry, planetMaterial);
         scene.add(planet);
         
-        // Create wireframe segments for intro animation
-        const wireframeSegments = [];
-        const segmentCount = INTRO_CONFIG.SEGMENT_COUNT;
+        // ============================================================================
+        // WIREFRAME GRAPH & BUILD ORDER (Continuous Chain)
+        // ============================================================================
         
-        for (let i = 0; i < segmentCount; i++) {
-            // Create segments as full vertical wedges that divide the sphere
-            const thetaStart = (i / segmentCount) * Math.PI * 2;
-            const thetaLength = (Math.PI * 2) / segmentCount;
-            const phiStart = 0;
-            const phiLength = Math.PI;
+        // Generate nodes (vertices on sphere surface)
+        const nodes = [];
+        const latSegments = INTRO_CONFIG.latSegments;
+        const lonSegments = INTRO_CONFIG.lonSegments;
+        
+        // Create grid of nodes on sphere
+        for (let lat = 0; lat <= latSegments; lat++) {
+            const phi = (lat / latSegments) * Math.PI;
+            for (let lon = 0; lon < lonSegments; lon++) {
+                const theta = (lon / lonSegments) * Math.PI * 2;
+                const x = planetRadius * Math.sin(phi) * Math.cos(theta);
+                const y = planetRadius * Math.cos(phi);
+                const z = planetRadius * Math.sin(phi) * Math.sin(theta);
+                nodes.push(new THREE.Vector3(x, y, z));
+            }
+        }
+        
+        // Generate edges (connecting adjacent nodes)
+        const edges = [];
+        const getNodeIndex = (lat, lon) => {
+            // Wrap longitude
+            lon = (lon + lonSegments) % lonSegments;
+            if (lat < 0 || lat > latSegments) return -1;
+            return lat * lonSegments + lon;
+        };
+        
+        for (let lat = 0; lat <= latSegments; lat++) {
+            for (let lon = 0; lon < lonSegments; lon++) {
+                const currentIdx = getNodeIndex(lat, lon);
+                
+                // Horizontal edge (to next longitude)
+                if (lat < latSegments) {
+                    const nextLonIdx = getNodeIndex(lat, lon + 1);
+                    if (nextLonIdx >= 0) {
+                        edges.push([currentIdx, nextLonIdx]);
+                    }
+                }
+                
+                // Vertical edge (to next latitude)
+                if (lat < latSegments) {
+                    const nextLatIdx = getNodeIndex(lat + 1, lon);
+                    if (nextLatIdx >= 0) {
+                        edges.push([currentIdx, nextLatIdx]);
+                    }
+                }
+            }
+        }
+        
+        // Compute continuous build sequence (DFS-like traversal)
+        const buildSequence = [];
+        const visitedEdges = new Set();
+        
+        // Start from node nearest to camera forward direction
+        const cameraForward = new THREE.Vector3(0, 0, -1);
+        let seedNodeIdx = 0;
+        let maxDot = -Infinity;
+        nodes.forEach((node, idx) => {
+            const dot = node.clone().normalize().dot(cameraForward);
+            if (dot > maxDot) {
+                maxDot = dot;
+                seedNodeIdx = idx;
+            }
+        });
+        
+        // DFS traversal to create continuous path
+        const adjacency = new Map();
+        edges.forEach(([i0, i1], edgeIdx) => {
+            if (!adjacency.has(i0)) adjacency.set(i0, []);
+            if (!adjacency.has(i1)) adjacency.set(i1, []);
+            adjacency.get(i0).push({ node: i1, edgeIdx, reversed: false });
+            adjacency.get(i1).push({ node: i0, edgeIdx, reversed: true });
+        });
+        
+        // Improved DFS that maintains continuity
+        let currentNode = seedNodeIdx;
+        const visitedNodes = new Set();
+        const backtrackStack = [currentNode];
+        
+        while (buildSequence.length < edges.length) {
+            visitedNodes.add(currentNode);
+            const neighbors = adjacency.get(currentNode) || [];
             
-            const segmentGeometry = new THREE.SphereGeometry(
-                planetRadius, 8, 8, 
-                thetaStart, 
-                thetaLength,
-                phiStart, 
-                phiLength
-            );
+            // Find unvisited edge from current node
+            let foundUnvisited = false;
+            for (const neighbor of neighbors) {
+                if (!visitedEdges.has(neighbor.edgeIdx)) {
+                    visitedEdges.add(neighbor.edgeIdx);
+                    const [n0, n1] = edges[neighbor.edgeIdx];
+                    
+                    // Ensure continuity: start from current node
+                    const startNode = currentNode;
+                    const endNode = neighbor.node;
+                    
+                    buildSequence.push({
+                        edgeIdx: neighbor.edgeIdx,
+                        startNode: startNode,
+                        endNode: endNode,
+                        startPos: nodes[startNode],
+                        endPos: nodes[endNode]
+                    });
+                    
+                    backtrackStack.push(endNode);
+                    currentNode = endNode;
+                    foundUnvisited = true;
+                    break;
+                }
+            }
             
-            const segmentMaterial = new THREE.MeshBasicMaterial({
-                color: 0x666666,
-                wireframe: true,
+            // Backtrack if no unvisited edges
+            if (!foundUnvisited) {
+                backtrackStack.pop();
+                if (backtrackStack.length > 0) {
+                    currentNode = backtrackStack[backtrackStack.length - 1];
+                } else {
+                    // Find any unvisited node to start new component
+                    let foundNewStart = false;
+                    for (let i = 0; i < nodes.length; i++) {
+                        if (!visitedNodes.has(i) && adjacency.has(i)) {
+                            currentNode = i;
+                            backtrackStack.push(i);
+                            foundNewStart = true;
+                            break;
+                        }
+                    }
+                    if (!foundNewStart) break; // All nodes visited
+                }
+            }
+        }
+        
+        // Create segment geometries and materials
+        const segmentMeshes = [];
+        
+        // Shared shader material (memory efficient)
+        const sharedSegmentMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                uniform float uTrim;
+                uniform float uRadius;
+                uniform float uThicknessScale;
+                varying float vAlpha;
+                
+                void main() {
+                    vec3 pos = position;
+                    
+                    // Trim along length (Y axis in cylinder space)
+                    float normalizedY = (position.y + 0.5);
+                    vAlpha = step(normalizedY, uTrim);
+                    
+                    // Scale thickness with configurable factor
+                    pos.x *= uRadius * uThicknessScale;
+                    pos.z *= uRadius * uThicknessScale;
+                    
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform float uOpacity;
+                varying float vAlpha;
+                
+                void main() {
+                    if (vAlpha < 0.5) discard;
+                    gl_FragColor = vec4(0.5, 0.5, 0.5, uOpacity);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        
+        buildSequence.forEach(segment => {
+            const startPos = segment.startPos;
+            const endPos = segment.endPos;
+            
+            // Create cylinder geometry along edge
+            const cylinderGeom = new THREE.CylinderGeometry(1, 1, 1, 8, 1);
+            
+            // Create material with individual uniforms (more efficient than full clone)
+            const material = new THREE.ShaderMaterial({
+                vertexShader: sharedSegmentMaterial.vertexShader,
+                fragmentShader: sharedSegmentMaterial.fragmentShader,
+                uniforms: {
+                    uTrim: { value: 0.0 },
+                    uOpacity: { value: 0.0 },
+                    uRadius: { value: 0.0 },
+                    uThicknessScale: { value: INTRO_CONFIG.thicknessScale }
+                },
                 transparent: true,
-                opacity: 0.0 // Start invisible
+                side: THREE.DoubleSide
             });
             
-            const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
+            const mesh = new THREE.Mesh(cylinderGeom, material);
             
-            // Store initial scattered position
-            const angle = (i / segmentCount) * Math.PI * 2;
-            const distance = INTRO_CONFIG.MIN_SCATTER_DISTANCE + Math.random() * INTRO_CONFIG.MAX_SCATTER_RANGE;
-            segment.userData.initialPos = {
-                x: Math.cos(angle) * distance,
-                y: (Math.random() - 0.5) * 80,
-                z: Math.sin(angle) * distance
-            };
-            segment.userData.targetPos = { x: 0, y: 0, z: 0 };
-            segment.userData.initialRotation = {
-                x: Math.random() * Math.PI * 2,
-                y: Math.random() * Math.PI * 2,
-                z: Math.random() * Math.PI * 2
-            };
+            // Position and orient cylinder
+            const midpoint = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
+            const direction = new THREE.Vector3().subVectors(endPos, startPos);
+            const length = direction.length();
             
-            // Start at scattered position
-            segment.position.set(
-                segment.userData.initialPos.x,
-                segment.userData.initialPos.y,
-                segment.userData.initialPos.z
-            );
-            segment.rotation.set(
-                segment.userData.initialRotation.x,
-                segment.userData.initialRotation.y,
-                segment.userData.initialRotation.z
-            );
+            mesh.position.copy(midpoint);
+            mesh.scale.y = length;
             
-            scene.add(segment);
-            wireframeSegments.push(segment);
-        }
+            // Align cylinder to edge direction
+            const up = new THREE.Vector3(0, 1, 0);
+            const quaternion = new THREE.Quaternion();
+            quaternion.setFromUnitVectors(up, direction.normalize());
+            mesh.quaternion.copy(quaternion);
+            
+            mesh.userData.segment = segment;
+            mesh.userData.startTime = 0;
+            mesh.userData.active = false;
+            mesh.visible = false;
+            
+            scene.add(mesh);
+            segmentMeshes.push(mesh);
+        });
         
         // Create realistic Earth with visible countries/continents
         const dotsGeometry = new THREE.BufferGeometry();
@@ -1374,17 +1542,24 @@
         const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
         scene.add(ambientLight);
         
-        // Set camera position - start close during intro
-        if (introState.active) {
-            camera.position.set(60, 40, 60);
-            camera.lookAt(0, 0, 0);
-        } else {
-            camera.position.z = 80;
-            camera.position.y = 30;
-            camera.lookAt(0, 0, 0);
-        }
+        // Snapshot original camera state (before intro starts)
+        const originalCameraState = {
+            position: new THREE.Vector3(0, 30, 80),
+            target: new THREE.Vector3(0, 0, 0),
+            fov: 75
+        };
         
-        // Store default camera parameters for later use
+        // Set camera to starting position for intro
+        camera.position.set(60, 40, 60);
+        camera.lookAt(0, 0, 0);
+        
+        introState.originalCamera = {
+            position: originalCameraState.position.clone(),
+            target: originalCameraState.target.clone(),
+            fov: originalCameraState.fov
+        };
+        
+        // Store default camera parameters for normal operation
         const defaultCameraOrbit = {
             radius: 80,
             height: 30,
@@ -1395,134 +1570,166 @@
         let time = 0;
         let lastFrameTime = performance.now();
         
+        // ============================================================================
+        // CONTINUOUS CHAIN INTRO ANIMATION
+        // ============================================================================
+        
+        // Easing function (cubic in-out)
+        function easeCubicInOut(t) {
+            return t < 0.5
+                ? 4 * t * t * t
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
         // Intro sequence update function
         function updateIntroSequence(currentTime, deltaTime) {
-            const elapsed = currentTime - introState.startTime;
             const phase = introState.phase;
             
-            if (phase === 'formation') {
-                const duration = introState.phaseDurations.formation;
-                const progress = Math.min(elapsed / duration, 1);
+            if (phase === 'idle') {
+                // Start building phase
+                introState.phase = 'building';
+                introState.phaseStartTime = currentTime;
+                introState.currentEdgeIndex = 0;
                 
-                // Ease function for smooth animation
-                const easeProgress = progress < 0.5 
-                    ? 2 * progress * progress 
-                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-                
-                // Animate wireframe segments moving into position
-                wireframeSegments.forEach((segment, i) => {
-                    const init = segment.userData.initialPos;
-                    const target = segment.userData.targetPos;
-                    const initRot = segment.userData.initialRotation;
-                    
-                    segment.position.x = init.x + (target.x - init.x) * easeProgress;
-                    segment.position.y = init.y + (target.y - init.y) * easeProgress;
-                    segment.position.z = init.z + (target.z - init.z) * easeProgress;
-                    
-                    segment.rotation.x = initRot.x * (1 - easeProgress);
-                    segment.rotation.y = initRot.y * (1 - easeProgress);
-                    segment.rotation.z = initRot.z * (1 - easeProgress);
-                    
-                    // Fade in segments
-                    segment.material.opacity = 0.5 * easeProgress;
-                });
-                
-                // Camera follows the formation - circle around the forming globe
-                const cameraAngle = progress * Math.PI * 2; // Full rotation during formation
-                const cameraDistance = 100 - (30 * easeProgress); // Move closer as it forms
-                camera.position.x = Math.cos(cameraAngle) * cameraDistance;
-                camera.position.y = 40 - (10 * easeProgress); // Lower camera as it forms
-                camera.position.z = Math.sin(cameraAngle) * cameraDistance;
-                camera.lookAt(0, 0, 0);
-                
-                // Transition to next phase
-                if (progress >= 1) {
-                    introState.phase = 'zoom_out';
-                    introState.startTime = currentTime;
-                    // Capture camera position at end of formation
-                    introState.cameraStartPos = {
-                        x: camera.position.x,
-                        y: camera.position.y,
-                        z: camera.position.z
-                    };
+                // Activate first edge
+                if (segmentMeshes.length > 0) {
+                    const firstMesh = segmentMeshes[0];
+                    firstMesh.userData.active = true;
+                    firstMesh.userData.startTime = currentTime;
+                    firstMesh.visible = true;
                 }
-            } else if (phase === 'zoom_out') {
-                const duration = introState.phaseDurations.zoom_out;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+            } else if (phase === 'building') {
+                // Animate active edge
+                const activeMesh = segmentMeshes[introState.currentEdgeIndex];
+                if (activeMesh && activeMesh.userData.active) {
+                    const elapsed = currentTime - activeMesh.userData.startTime;
+                    const progress = Math.min(elapsed / INTRO_CONFIG.segmentDurationMs, 1);
+                    const eased = easeCubicInOut(progress);
+                    
+                    // Animate segment: trim (length), opacity, radius (thickness)
+                    activeMesh.material.uniforms.uTrim.value = eased;
+                    activeMesh.material.uniforms.uOpacity.value = eased;
+                    activeMesh.material.uniforms.uRadius.value = eased * INTRO_CONFIG.finalRadius;
+                    
+                    // Camera follow: track the growing segment
+                    const segment = activeMesh.userData.segment;
+                    const A = segment.startPos;
+                    const B = segment.endPos;
+                    
+                    // Calculate front of growing edge (biased toward end for better framing)
+                    const lerpFactor = eased * INTRO_CONFIG.cameraFrontBias + INTRO_CONFIG.cameraFrontOffset;
+                    const front = new THREE.Vector3().lerpVectors(A, B, lerpFactor);
+                    
+                    // Smooth camera target lerp
+                    introState.cameraTarget.lerp(front, INTRO_CONFIG.cameraFollowLerp);
+                    
+                    // Position camera to look at target with slight orbit
+                    const orbitAngle = (currentTime - introState.phaseStartTime) * 0.0003;
+                    const cameraDistance = 70;
+                    const cameraOffset = new THREE.Vector3(
+                        Math.cos(orbitAngle) * 30,
+                        20,
+                        Math.sin(orbitAngle) * 30
+                    );
+                    
+                    camera.position.copy(introState.cameraTarget).add(cameraOffset);
+                    camera.lookAt(introState.cameraTarget);
+                    
+                    // Check if segment is complete
+                    if (progress >= 1) {
+                        // Lock segment to final state
+                        activeMesh.material.uniforms.uTrim.value = 1.0;
+                        activeMesh.material.uniforms.uOpacity.value = 1.0;
+                        activeMesh.material.uniforms.uRadius.value = INTRO_CONFIG.finalRadius;
+                        activeMesh.userData.active = false;
+                        
+                        // Move to next segment
+                        introState.currentEdgeIndex++;
+                        
+                        if (introState.currentEdgeIndex < segmentMeshes.length) {
+                            // Activate next edge
+                            const nextMesh = segmentMeshes[introState.currentEdgeIndex];
+                            nextMesh.userData.active = true;
+                            nextMesh.userData.startTime = currentTime;
+                            nextMesh.visible = true;
+                        } else {
+                            // All segments complete - transition to zoom out
+                            introState.phase = 'zoomOut';
+                            introState.phaseStartTime = currentTime;
+                            
+                            // Capture current camera position for interpolation
+                            introState.cameraStartPos = camera.position.clone();
+                        }
+                    }
+                }
+            } else if (phase === 'zoomOut') {
+                const elapsed = currentTime - introState.phaseStartTime;
+                const progress = Math.min(elapsed / INTRO_CONFIG.zoomOutDurationMs, 1);
+                const eased = easeCubicInOut(progress);
                 
-                // Fade out wireframe segments
-                wireframeSegments.forEach(segment => {
-                    segment.material.opacity = 0.5 * (1 - easeProgress);
+                // Fade out segment meshes
+                segmentMeshes.forEach(mesh => {
+                    mesh.material.uniforms.uOpacity.value = 1.0 - eased;
                 });
                 
-                // Fade in the main planet wireframe and dots
-                planetMaterial.uniforms.opacity.value = 0.3 * easeProgress;
-                dotsMaterial.opacity = 1.0 * easeProgress;
+                // Fade in main planet wireframe and dots
+                planetMaterial.uniforms.opacity.value = 0.3 * eased;
+                dotsMaterial.opacity = 1.0 * eased;
                 orbitRings.forEach(ring => {
-                    ring.material.opacity = ring.userData.targetOpacity * easeProgress;
+                    ring.material.opacity = ring.userData.targetOpacity * eased;
                 });
                 
-                // Camera zooms out to static position
+                // Camera zooms to static pose
                 const startPos = introState.cameraStartPos;
-                const targetX = 0;
-                const targetY = 50;
-                const targetZ = 120;
+                const targetPos = introState.staticPose.position;
                 
-                camera.position.x = startPos.x + (targetX - startPos.x) * easeProgress;
-                camera.position.y = startPos.y + (targetY - startPos.y) * easeProgress;
-                camera.position.z = startPos.z + (targetZ - startPos.z) * easeProgress;
-                camera.lookAt(0, 0, 0);
+                camera.position.lerpVectors(startPos, targetPos, eased);
+                camera.lookAt(introState.staticPose.target);
                 
                 if (progress >= 1) {
-                    introState.phase = 'static_hold';
-                    introState.startTime = currentTime;
-                    
-                    // Hide wireframe segments completely
-                    wireframeSegments.forEach(segment => {
-                        segment.visible = false;
+                    // Hide segment meshes
+                    segmentMeshes.forEach(mesh => {
+                        mesh.visible = false;
                     });
+                    
+                    introState.phase = 'poseHold';
+                    introState.phaseStartTime = currentTime;
                 }
-            } else if (phase === 'static_hold') {
-                const duration = introState.phaseDurations.static_hold;
-                const progress = Math.min(elapsed / duration, 1);
+            } else if (phase === 'poseHold') {
+                const elapsed = currentTime - introState.phaseStartTime;
+                const progress = Math.min(elapsed / INTRO_CONFIG.poseHoldMs, 1);
                 
-                // Camera stays static at (0, 50, 120)
-                camera.position.set(0, 50, 120);
-                camera.lookAt(0, 0, 0);
+                // Hold camera at static pose
+                camera.position.copy(introState.staticPose.position);
+                camera.lookAt(introState.staticPose.target);
                 
                 if (progress >= 1) {
-                    introState.phase = 'normal';
-                    introState.startTime = currentTime;
-                    defaultCameraOrbit.time = 0; // Reset time for smooth transition
+                    introState.phase = 'handoff';
+                    introState.phaseStartTime = currentTime;
+                    introState.cameraStartPos = camera.position.clone();
                 }
-            } else if (phase === 'normal') {
-                // Transition to normal camera orbit
-                const transitionDuration = 2000; // 2s transition
-                const elapsed = currentTime - introState.startTime;
-                const progress = Math.min(elapsed / transitionDuration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
+            } else if (phase === 'handoff') {
+                const elapsed = currentTime - introState.phaseStartTime;
+                const progress = Math.min(elapsed / INTRO_CONFIG.handoffDurationMs, 1);
+                const eased = easeCubicInOut(progress);
                 
-                // Advance orbit time during transition using actual delta time
-                defaultCameraOrbit.time += deltaTime / 1000; // Convert ms to seconds
+                // Interpolate from static pose to original camera state
+                const startPos = introState.cameraStartPos;
+                const targetPos = introState.originalCamera.position;
                 
-                // Interpolate from static position to orbit
-                const staticX = 0;
-                const staticY = 50;
-                const staticZ = 120;
-                
-                const orbitAngle = defaultCameraOrbit.time * 0.05;
-                const targetX = Math.cos(orbitAngle) * defaultCameraOrbit.radius;
-                const targetY = defaultCameraOrbit.height + Math.sin(defaultCameraOrbit.time * 0.08) * 5;
-                const targetZ = Math.sin(orbitAngle) * defaultCameraOrbit.radius;
-                
-                camera.position.x = staticX + (targetX - staticX) * easeProgress;
-                camera.position.y = staticY + (targetY - staticY) * easeProgress;
-                camera.position.z = staticZ + (targetZ - staticZ) * easeProgress;
-                camera.lookAt(0, 0, 0);
+                camera.position.lerpVectors(startPos, targetPos, eased);
+                camera.lookAt(introState.originalCamera.target);
                 
                 if (progress >= 1) {
-                    introState.active = false; // Intro complete
+                    // Restore exact original state
+                    camera.position.copy(introState.originalCamera.position);
+                    camera.lookAt(introState.originalCamera.target);
+                    camera.fov = introState.originalCamera.fov;
+                    camera.updateProjectionMatrix();
+                    
+                    introState.phase = 'done';
+                    introState.active = false;
+                    defaultCameraOrbit.time = 0;
                 }
             }
         }
