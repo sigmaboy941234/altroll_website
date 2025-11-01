@@ -1109,41 +1109,58 @@
             adjacency.get(i1).push({ node: i0, edgeIdx, reversed: true });
         });
         
-        const stack = [{ nodeIdx: seedNodeIdx, edgeIdx: -1, reversed: false }];
-        const visitedNodes = new Set([seedNodeIdx]);
+        // Improved DFS that maintains continuity
+        let currentNode = seedNodeIdx;
+        const visitedNodes = new Set();
+        const backtrackStack = [currentNode];
         
-        while (stack.length > 0 || buildSequence.length < edges.length) {
-            if (stack.length === 0) {
-                // Find unvisited node to continue
-                for (let i = 0; i < nodes.length; i++) {
-                    if (!visitedNodes.has(i) && adjacency.has(i)) {
-                        stack.push({ nodeIdx: i, edgeIdx: -1, reversed: false });
-                        visitedNodes.add(i);
-                        break;
-                    }
-                }
-                if (stack.length === 0) break;
-            }
+        while (buildSequence.length < edges.length) {
+            visitedNodes.add(currentNode);
+            const neighbors = adjacency.get(currentNode) || [];
             
-            const current = stack.pop();
-            const neighbors = adjacency.get(current.nodeIdx) || [];
-            
+            // Find unvisited edge from current node
             let foundUnvisited = false;
             for (const neighbor of neighbors) {
                 if (!visitedEdges.has(neighbor.edgeIdx)) {
                     visitedEdges.add(neighbor.edgeIdx);
                     const [n0, n1] = edges[neighbor.edgeIdx];
+                    
+                    // Ensure continuity: start from current node
+                    const startNode = currentNode;
+                    const endNode = neighbor.node;
+                    
                     buildSequence.push({
                         edgeIdx: neighbor.edgeIdx,
-                        startNode: neighbor.reversed ? n1 : n0,
-                        endNode: neighbor.reversed ? n0 : n1,
-                        startPos: nodes[neighbor.reversed ? n1 : n0],
-                        endPos: nodes[neighbor.reversed ? n0 : n1]
+                        startNode: startNode,
+                        endNode: endNode,
+                        startPos: nodes[startNode],
+                        endPos: nodes[endNode]
                     });
-                    stack.push({ nodeIdx: neighbor.node, edgeIdx: neighbor.edgeIdx, reversed: neighbor.reversed });
-                    visitedNodes.add(neighbor.node);
+                    
+                    backtrackStack.push(endNode);
+                    currentNode = endNode;
                     foundUnvisited = true;
                     break;
+                }
+            }
+            
+            // Backtrack if no unvisited edges
+            if (!foundUnvisited) {
+                backtrackStack.pop();
+                if (backtrackStack.length > 0) {
+                    currentNode = backtrackStack[backtrackStack.length - 1];
+                } else {
+                    // Find any unvisited node to start new component
+                    let foundNewStart = false;
+                    for (let i = 0; i < nodes.length; i++) {
+                        if (!visitedNodes.has(i) && adjacency.has(i)) {
+                            currentNode = i;
+                            backtrackStack.push(i);
+                            foundNewStart = true;
+                            break;
+                        }
+                    }
+                    if (!foundNewStart) break; // All nodes visited
                 }
             }
         }
