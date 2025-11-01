@@ -971,10 +971,13 @@
         const INTRO_CONFIG = {
             segmentDurationMs: 110,          // Time to grow each segment
             cameraFollowLerp: 0.12,          // Camera follow smoothness
+            cameraFrontBias: 0.5,            // Camera position bias (0-1, higher = more toward end)
+            cameraFrontOffset: 0.25,         // Additional offset for camera positioning
             zoomOutDurationMs: 700,          // Zoom to static pose
             poseHoldMs: 700,                 // Hold at static pose
             handoffDurationMs: 1500,         // Return to original camera
             finalRadius: 0.15,               // Segment thickness
+            thicknessScale: 5.0,             // Shader thickness scaling factor
             latSegments: 12,                 // Latitude divisions
             lonSegments: 16,                 // Longitude divisions
         };
@@ -1167,15 +1170,13 @@
         
         // Create segment geometries and materials
         const segmentMeshes = [];
-        const segmentMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                uTrim: { value: 0.0 },
-                uOpacity: { value: 0.0 },
-                uRadius: { value: 0.0 }
-            },
+        
+        // Shared shader material (memory efficient)
+        const sharedSegmentMaterial = new THREE.ShaderMaterial({
             vertexShader: `
                 uniform float uTrim;
                 uniform float uRadius;
+                uniform float uThicknessScale;
                 varying float vAlpha;
                 
                 void main() {
@@ -1185,9 +1186,9 @@
                     float normalizedY = (position.y + 0.5);
                     vAlpha = step(normalizedY, uTrim);
                     
-                    // Scale thickness
-                    pos.x *= uRadius * 5.0;
-                    pos.z *= uRadius * 5.0;
+                    // Scale thickness with configurable factor
+                    pos.x *= uRadius * uThicknessScale;
+                    pos.z *= uRadius * uThicknessScale;
                     
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
                 }
@@ -1211,7 +1212,21 @@
             
             // Create cylinder geometry along edge
             const cylinderGeom = new THREE.CylinderGeometry(1, 1, 1, 8, 1);
-            const material = segmentMaterial.clone();
+            
+            // Create material with individual uniforms (more efficient than full clone)
+            const material = new THREE.ShaderMaterial({
+                vertexShader: sharedSegmentMaterial.vertexShader,
+                fragmentShader: sharedSegmentMaterial.fragmentShader,
+                uniforms: {
+                    uTrim: { value: 0.0 },
+                    uOpacity: { value: 0.0 },
+                    uRadius: { value: 0.0 },
+                    uThicknessScale: { value: INTRO_CONFIG.thicknessScale }
+                },
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+            
             const mesh = new THREE.Mesh(cylinderGeom, material);
             
             // Position and orient cylinder
@@ -1601,8 +1616,9 @@
                     const A = segment.startPos;
                     const B = segment.endPos;
                     
-                    // Calculate front of growing edge (biased toward end)
-                    const front = new THREE.Vector3().lerpVectors(A, B, eased * 0.5 + 0.25);
+                    // Calculate front of growing edge (biased toward end for better framing)
+                    const lerpFactor = eased * INTRO_CONFIG.cameraFrontBias + INTRO_CONFIG.cameraFrontOffset;
+                    const front = new THREE.Vector3().lerpVectors(A, B, lerpFactor);
                     
                     // Smooth camera target lerp
                     introState.cameraTarget.lerp(front, INTRO_CONFIG.cameraFollowLerp);

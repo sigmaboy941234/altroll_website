@@ -3,7 +3,9 @@
  * Tests the graph generation and build sequence without Three.js
  */
 
+// Configuration matching main application
 const INTRO_CONFIG = {
+    segmentDurationMs: 110,      // Should match index.html
     latSegments: 12,
     lonSegments: 16,
 };
@@ -83,6 +85,12 @@ const maxIterations = edges.length * 3;
 
 while (buildSequence.length < edges.length && iterations < maxIterations) {
     iterations++;
+    
+    // Check for infinite loop protection
+    if (iterations === maxIterations - 1) {
+        console.warn(`⚠️  Approaching max iterations (${maxIterations}), stopping early`);
+    }
+    
     visitedNodes.add(currentNode);
     const neighbors = adjacency.get(currentNode) || [];
     
@@ -148,9 +156,8 @@ console.log(`✓ Continuity: ${buildSequence.length - discontinuities}/${buildSe
 const uniqueEdges = new Set(buildSequence.map(s => s.edgeIdx));
 console.log(`✓ Unique edges: ${uniqueEdges.size} / ${buildSequence.length}`);
 
-// Calculate estimated build time
-const segmentDurationMs = 110;
-const totalBuildTimeMs = buildSequence.length * segmentDurationMs;
+// Calculate estimated build time (using config constant)
+const totalBuildTimeMs = buildSequence.length * INTRO_CONFIG.segmentDurationMs;
 const totalBuildTimeSec = (totalBuildTimeMs / 1000).toFixed(1);
 
 console.log(`\n--- Summary ---`);
