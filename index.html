@@ -1484,6 +1484,9 @@
                 const progress = Math.min(elapsed / transitionDuration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
                 
+                // Advance orbit time during transition
+                defaultCameraOrbit.time += 0.016;
+                
                 // Interpolate from static position to orbit
                 const staticX = 0;
                 const staticY = 50;
