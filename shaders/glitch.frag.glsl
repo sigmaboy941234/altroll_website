@@ -1,5 +1,5 @@
 // glitch.frag.glsl
-precision highp float;
+// Note: precision is set by Three.js automatically
 
 uniform vec3  uBaseColor;      // wire color
 uniform float uNeon;           // 0.6 (idle) → 1.8 (surge)

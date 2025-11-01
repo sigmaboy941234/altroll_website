@@ -61,10 +61,10 @@ function vertexOf(geo, index) {
 }
 
 function buildPlan(edgesGeo) {
-  // Convert EdgesGeometry index list into adjacency, then DFS
-  const idx = edgesGeo.getIndex().array;
+  // Convert EdgesGeometry position list into adjacency, then DFS
   const pos = edgesGeo.getAttribute('position').array;
-
+  const indexAttr = edgesGeo.getIndex();
+  
   // Map edge endpoints to vertex indices on the base geo
   // For an EdgesGeometry, each pair in index is a distinct vertex; we'll dedupe by position.
   const key = (x,y,z) => `${x.toFixed(4)},${y.toFixed(4)},${z.toFixed(4)}`;
@@ -77,13 +77,27 @@ function buildPlan(edgesGeo) {
   };
 
   const edges = [];
-  for (let i=0;i<idx.length;i+=2){
-    const a = idx[i]*3, b = idx[i+1]*3;
-    const ax = pos[a], ay = pos[a+1], az = pos[a+2];
-    const bx = pos[b], by = pos[b+1], bz = pos[b+2];
-    const ai = getIdx(ax,ay,az);
-    const bi = getIdx(bx,by,bz);
-    edges.push([ai,bi]);
+  
+  if (indexAttr) {
+    // Has index buffer
+    const idx = indexAttr.array;
+    for (let i=0;i<idx.length;i+=2){
+      const a = idx[i]*3, b = idx[i+1]*3;
+      const ax = pos[a], ay = pos[a+1], az = pos[a+2];
+      const bx = pos[b], by = pos[b+1], bz = pos[b+2];
+      const ai = getIdx(ax,ay,az);
+      const bi = getIdx(bx,by,bz);
+      edges.push([ai,bi]);
+    }
+  } else {
+    // No index buffer - positions are sequential pairs
+    for (let i=0;i<pos.length;i+=6){
+      const ax = pos[i], ay = pos[i+1], az = pos[i+2];
+      const bx = pos[i+3], by = pos[i+4], bz = pos[i+5];
+      const ai = getIdx(ax,ay,az);
+      const bi = getIdx(bx,by,bz);
+      edges.push([ai,bi]);
+    }
   }
 
   const adj = Array.from({length: vCount}, ()=> new Set());

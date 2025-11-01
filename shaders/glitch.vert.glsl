@@ -1,16 +1,10 @@
 // glitch.vert.glsl
-precision highp float;
+// Note: modelViewMatrix, projectionMatrix, and position are provided by Three.js
+// We only declare our custom uniforms here
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-
-// Controls
 uniform float uGlitchAmp;   // 0.0 (off) → ~0.035 * R (strong)
 uniform float uTime;        // seconds
 uniform float uSeed;        // change per build for variety
-
-attribute vec3 position;
-attribute vec3 normal;
 
 // Simple, cheap hash noise (no textures)
 float hash31(vec3 p) {
@@ -46,6 +40,9 @@ void main() {
   float t = uTime * 2.0;
   float j = n3(position * freq + vec3(t, -t, t*0.5));
 
+  // Compute pseudo-normal from position (radial direction from origin for sphere)
+  vec3 normal = normalize(position);
+  
   // Displace along normal (primary) + slight lateral smear for the "tear"
   vec3 lateral = normalize(vec3(normal.z, normal.x, normal.y));
   vec3 displaced = position
