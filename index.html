@@ -2896,19 +2896,19 @@
         function startTerminalLoading() {
             const terminalContent = document.getElementById('terminal-content');
             const lines = [
-                { text: 'altroll@kali:~$ ', delay: 500, isPrompt: true },
-                { text: 'Loading portfolio components...', delay: 800 },
-                { text: '[INFO] Initializing Three.js renderer...', delay: 600 },
-                { text: '[INFO] Loading planet textures...', delay: 700 },
-                { text: '[INFO] Generating continent data...', delay: 900 },
-                { text: '[INFO] Creating orbital mechanics...', delay: 600 },
-                { text: '[INFO] Spawning background stars...', delay: 500 },
-                { text: '[INFO] Setting up particle systems...', delay: 700 },
-                { text: '[INFO] Initializing lighting engine...', delay: 600 },
-                { text: '[INFO] Loading social links...', delay: 500 },
-                { text: '[INFO] Applying gray theme...', delay: 400 },
-                { text: '[OK] Portfolio loaded successfully!', delay: 800, isSuccess: true },
-                { text: 'altroll@kali:~$ ', delay: 500, isPrompt: true, final: true }
+                { text: 'altroll@kali:~$ ', delay: 250, isPrompt: true },
+                { text: 'Loading portfolio components...', delay: 400 },
+                { text: '[INFO] Initializing Three.js renderer...', delay: 300 },
+                { text: '[INFO] Loading planet textures...', delay: 350 },
+                { text: '[INFO] Generating continent data...', delay: 450 },
+                { text: '[INFO] Creating orbital mechanics...', delay: 300 },
+                { text: '[INFO] Spawning background stars...', delay: 250 },
+                { text: '[INFO] Setting up particle systems...', delay: 350 },
+                { text: '[INFO] Initializing lighting engine...', delay: 300 },
+                { text: '[INFO] Loading social links...', delay: 250 },
+                { text: '[INFO] Applying gray theme...', delay: 200 },
+                { text: '[OK] Portfolio loaded successfully!', delay: 400, isSuccess: true },
+                { text: 'altroll@kali:~$ ', delay: 250, isPrompt: true, final: true }
             ];
 
             let lineIndex = 0;
@@ -2929,11 +2929,11 @@
                     
                     terminalContent.appendChild(div);
                     
-                    // Play button sound with gradually increasing volume (5% to 30%)
+                    // Play button sound with gradually increasing volume (5% to 30%) - allow overlapping
                     const volumeProgress = lineIndex / (lines.length - 1); // 0 to 1
-                    buttonSound.volume = 0.05 + (volumeProgress * 0.25); // Start at 5%, end at 30%
-                    buttonSound.currentTime = 0; // Reset to start for rapid playback
-                    buttonSound.play().catch(err => console.log('Button sound play failed:', err));
+                    const soundClone = buttonSound.cloneNode();
+                    soundClone.volume = 0.05 + (volumeProgress * 0.25); // Start at 5%, end at 30%
+                    soundClone.play().catch(err => console.log('Button sound play failed:', err));
                     
                     // Add loading bar for some lines
                     if (line.text.includes('Loading') || line.text.includes('Generating') || line.text.includes('Creating')) {
