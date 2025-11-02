@@ -40,12 +40,15 @@
             background: #0a0a0a;
             color: #fff;
             min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
         /* Entry screen overlay */
@@ -76,11 +79,12 @@
         #entry-text {
             font-size: 32px;
             font-weight: 600;
-            color: #9ca3af;
+            color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 4px;
             user-select: none;
             font-family: monospace;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         #entry-text::after {
@@ -262,6 +266,14 @@
             width: 100%;
             height: 100%;
             z-index: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        #canvas-container.loaded {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* Animated grid background */
@@ -320,12 +332,53 @@
             width: 100%;
             position: relative;
             z-index: 1;
-            animation: fadeIn 0.8s ease-out;
+            filter: blur(40px);
+            transform-style: preserve-3d;
             background: linear-gradient(180deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.75) 50%, rgba(10, 10, 10, 0.85) 100%);
             backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 40px 20px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            /* Start hidden for initial load */
+            opacity: 0;
+            transform: scale(0.98);
+            pointer-events: none;
+            /* Smooth transitions when toggling */
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+                        filter 0.8s ease;
+        }
+        
+        .container.visible {
+            filter: blur(0px);
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        /* When UI is toggled hidden */
+        .container.ui-hidden {
+            opacity: 0 !important;
+            transform: scale(0.95) !important;
+            pointer-events: none !important;
+        }
+        
+        /* Site loading animation from index2 */
+        .site-loaded {
+            animation: siteSlideIn 1s ease-out forwards;
+        }
+
+        @keyframes siteSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
         }
 
         @keyframes fadeIn {
@@ -593,11 +646,199 @@
             transform: scale(0.95);
         }
 
-        /* Hide main content when toggled */
-        .main-content.hidden {
-            opacity: 0 !important;
+        /* Terminal loading screen - CLEAN AND SIMPLE */
+        #terminal-loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 600px;
+            height: 400px;
+            background: #2d2d2d;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            z-index: 9999;
+            display: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            opacity: 0;
+            animation: terminalSlideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes terminalSlideIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8) translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) translateY(0);
+            }
+        }
+
+        .terminal-loading-out {
+            animation: terminalSlideOut 0.5s ease-in forwards !important;
+        }
+
+        @keyframes terminalSlideOut {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9) translateY(-20px);
+            }
+        }
+
+        .terminal-titlebar {
+            background: linear-gradient(135deg, #383838, #2a2a2a);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #555;
+            position: relative;
+        }
+
+        .terminal-titlebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #666, transparent);
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .terminal-button:hover {
+            transform: scale(1.1);
+        }
+
+        .terminal-button.close {
+            background: linear-gradient(135deg, #ff6b5a, #ff3b30);
+            box-shadow: 0 1px 3px rgba(255, 59, 48, 0.3);
+        }
+
+        .terminal-button.minimize {
+            background: linear-gradient(135deg, #ffbe2e, #ff9500);
+            box-shadow: 0 1px 3px rgba(255, 149, 0, 0.3);
+        }
+
+        .terminal-button.maximize {
+            background: linear-gradient(135deg, #28ca42, #30d158);
+            box-shadow: 0 1px 3px rgba(48, 209, 88, 0.3);
+        }
+
+        .terminal-title {
+            font-size: 13px;
+            color: #fff;
+            font-weight: normal;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-body {
+            padding: 15px;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+            background: linear-gradient(135deg, #1e1e1e, #151515);
+            position: relative;
+        }
+
+        .terminal-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 50%);
             pointer-events: none;
-            transition: opacity 0.4s ease;
+        }
+
+        .terminal-header {
+            color: #00ff41;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .terminal-line {
+            margin: 3px 0;
+            font-size: 13px;
+            line-height: 1.3;
+            opacity: 0;
+            animation: terminalLineAppear 0.3s ease-out forwards;
+        }
+
+        @keyframes terminalLineAppear {
+            0% {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .terminal-prompt {
+            color: #00ff41;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+        }
+
+        .terminal-output {
+            color: #fff;
+        }
+
+        .terminal-success {
+            color: #28ca42;
+            text-shadow: 0 0 5px rgba(40, 202, 66, 0.3);
+        }
+
+        .terminal-cursor {
+            animation: terminal-blink 1s infinite;
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+
+        @keyframes terminal-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 3px;
+            background: #333;
+            margin: 5px 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #28ca42);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
 
         #icon-flight-layer {
@@ -656,6 +897,11 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            pointer-events: none; /* Disable clicks until loaded */
+        }
+        
+        .links.loaded {
+            pointer-events: auto; /* Enable clicks when ready */
         }
 
         .link-item {
@@ -827,6 +1073,23 @@
         <div id="entry-text"></div>
     </div>
 
+    <!-- Terminal loading screen -->
+    <div id="terminal-loading">
+        <div class="terminal-titlebar">
+            <div class="terminal-buttons">
+                <div class="terminal-button close"></div>
+                <div class="terminal-button minimize"></div>
+                <div class="terminal-button maximize"></div>
+            </div>
+            <div class="terminal-title">altroll@kali: ~</div>
+            <div></div>
+        </div>
+        <div class="terminal-body">
+            <div class="terminal-header">altroll@kali:~$ sudo systemctl start portfolio.service</div>
+            <div id="terminal-content"></div>
+        </div>
+    </div>
+
     <!-- Toggle UI Button -->
     <button class="toggle-ui-btn" id="toggle-ui-btn" title="Toggle UI Visibility" aria-label="Toggle UI">
         <i class="fas fa-eye-slash"></i>
@@ -950,11 +1213,20 @@
 
     <script>
         // Set current year dynamically
+        console.log('Page script started');
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
     <script>
+        console.log('Three.js script starting...');
         // Three.js 3D Realistic Interactive Black Hole
+        try {
         const canvas = document.getElementById('canvas-container');
+        
+        // Check if THREE is loaded
+        if (typeof THREE === 'undefined') {
+            throw new Error('Three.js failed to load from CDN');
+        }
+        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1362,23 +1634,46 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        
+        } catch (error) {
+            console.error('Three.js initialization failed:', error);
+            // Hide canvas on error
+            const canvas = document.getElementById('canvas-container');
+            if (canvas) canvas.style.display = 'none';
+        }
 
         // Entry screen functionality
+        console.log('Initializing entry screen...');
         const entryScreen = document.getElementById('entry-screen');
         const mainContent = document.querySelector('.main-content');
         const entryText = document.getElementById('entry-text');
+        
+        // Audio with error handling
         const audio = new Audio('wof.mp3');
+        audio.addEventListener('error', (e) => console.warn('Background audio failed to load:', e));
+        
         const typewriterSound = new Audio('Untitled video - Made with Clipchamp.mp3');
         typewriterSound.volume = 0.15; // Reduce volume to 15%
+        typewriterSound.addEventListener('error', (e) => console.warn('Typewriter sound failed to load:', e));
+        
+        const chimeSound = new Audio('melancholy ui chime.mp3');
+        chimeSound.volume = 1.0; // Set volume to 100%
+        chimeSound.addEventListener('error', (e) => console.warn('Chime sound failed to load:', e));
+        
+        const buttonSound = new Audio('button-124476.mp3');
+        buttonSound.volume = 0.3; // Set volume to 30% to not be too overwhelming
+        buttonSound.addEventListener('error', (e) => console.warn('Button sound failed to load:', e));
 
         // Typewriter effect
         const text = 'ALTROLL';
+        console.log('Starting typewriter animation...');
         let index = 0;
         let isDeleting = false;
 
         function typeWriter() {
             if (!isDeleting && index < text.length) {
                 entryText.textContent = text.substring(0, index + 1);
+                console.log('Typing:', entryText.textContent);
                 index++;
                 setTimeout(typeWriter, 150);
             } else if (!isDeleting && index === text.length) {
@@ -2527,6 +2822,10 @@
                     footer.style.opacity = '1';
                     footer.style.transform = 'translateY(0)';
                     console.log('✓ UI sequence completed');
+                    
+                    // Enable link clicks now that everything is loaded
+                    links.classList.add('loaded');
+                    
                     // Cleanup typewriters
                     typewriters.forEach(tw => tw.destroy());
                 }, linkItems.length * 150 + 500); // After all links + 500ms delay
@@ -2567,25 +2866,122 @@
             AnimationController.setReducedMotion(event.matches);
         });
 
+        // Simple terminal loading - CLEAN VERSION FROM INDEX2
         entryScreen.addEventListener('click', () => {
+            // Play audio
             audio.play().catch(err => console.log('Audio play failed:', err));
-            entryScreen.classList.add('hidden');
             
-            // Start typewriter first - icon animation will trigger after bio completes
-            mainContent.setAttribute('aria-hidden', 'false');
-            if (!typewriterSequenceStarted) {
-                startTypewriterEffect();
-            }
+            // Hide entry screen and show terminal loading
+            entryScreen.style.display = 'none';
+            document.getElementById('terminal-loading').style.display = 'block';
             
-            queueTimeout(() => {
-                entryScreen.style.display = 'none';
-                // Show toggle button after entry screen is gone
-                const toggleBtn = document.getElementById('toggle-ui-btn');
-                toggleBtn.classList.add('visible');
-            }, 820);
+            // Start terminal loading sequence
+            startTerminalLoading();
         });
 
-        // Toggle UI Visibility
+        function startTerminalLoading() {
+            const terminalContent = document.getElementById('terminal-content');
+            const lines = [
+                { text: 'altroll@kali:~$ ', delay: 500, isPrompt: true },
+                { text: 'Loading portfolio components...', delay: 800 },
+                { text: '[INFO] Initializing Three.js renderer...', delay: 600 },
+                { text: '[INFO] Loading planet textures...', delay: 700 },
+                { text: '[INFO] Generating continent data...', delay: 900 },
+                { text: '[INFO] Creating orbital mechanics...', delay: 600 },
+                { text: '[INFO] Spawning background stars...', delay: 500 },
+                { text: '[INFO] Setting up particle systems...', delay: 700 },
+                { text: '[INFO] Initializing lighting engine...', delay: 600 },
+                { text: '[INFO] Loading social links...', delay: 500 },
+                { text: '[INFO] Applying gray theme...', delay: 400 },
+                { text: '[OK] Portfolio loaded successfully!', delay: 800, isSuccess: true },
+                { text: 'altroll@kali:~$ ', delay: 500, isPrompt: true, final: true }
+            ];
+
+            let lineIndex = 0;
+
+            function addLine() {
+                if (lineIndex < lines.length) {
+                    const line = lines[lineIndex];
+                    const div = document.createElement('div');
+                    div.className = 'terminal-line';
+                    
+                    if (line.isPrompt) {
+                        div.innerHTML = `<span class="terminal-prompt">${line.text}</span><span class="terminal-cursor">█</span>`;
+                    } else if (line.isSuccess) {
+                        div.innerHTML = `<span class="terminal-success">${line.text}</span>`;
+                    } else {
+                        div.innerHTML = `<span class="terminal-output">${line.text}</span>`;
+                    }
+                    
+                    terminalContent.appendChild(div);
+                    
+                    // Play button sound with gradually increasing volume (5% to 30%)
+                    const volumeProgress = lineIndex / (lines.length - 1); // 0 to 1
+                    buttonSound.volume = 0.05 + (volumeProgress * 0.25); // Start at 5%, end at 30%
+                    buttonSound.currentTime = 0; // Reset to start for rapid playback
+                    buttonSound.play().catch(err => console.log('Button sound play failed:', err));
+                    
+                    // Add loading bar for some lines
+                    if (line.text.includes('Loading') || line.text.includes('Generating') || line.text.includes('Creating')) {
+                        const progressDiv = document.createElement('div');
+                        progressDiv.className = 'loading-bar';
+                        progressDiv.innerHTML = '<div class="loading-progress"></div>';
+                        terminalContent.appendChild(progressDiv);
+                        
+                        // Animate progress bar
+                        setTimeout(() => {
+                            const progress = progressDiv.querySelector('.loading-progress');
+                            progress.style.width = '100%';
+                        }, 100);
+                    }
+                    
+                    // Scroll to bottom
+                    const terminalBody = document.querySelector('.terminal-body');
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                    
+                    lineIndex++;
+                    
+                    if (line.final) {
+                        // Final line reached, play chime sound
+                        chimeSound.play().catch(err => console.log('Chime sound play failed:', err));
+                        
+                        // Load the main content
+                        setTimeout(() => {
+                            const terminal = document.getElementById('terminal-loading');
+                            terminal.classList.add('terminal-loading-out');
+                            
+                            setTimeout(() => {
+                                terminal.style.display = 'none';
+                                mainContent.classList.add('visible');
+                                mainContent.classList.add('site-loaded');
+                                
+                                // Also make canvas visible
+                                const canvasContainer = document.getElementById('canvas-container');
+                                if (canvasContainer) {
+                                    canvasContainer.classList.add('loaded');
+                                }
+                                
+                                // Start typewriter sequence
+                                mainContent.setAttribute('aria-hidden', 'false');
+                                if (!typewriterSequenceStarted) {
+                                    startTypewriterEffect();
+                                }
+                                
+                                // Show toggle button
+                                const toggleBtn = document.getElementById('toggle-ui-btn');
+                                toggleBtn.classList.add('visible');
+                            }, 500);
+                        }, 1000);
+                    } else {
+                        setTimeout(addLine, line.delay);
+                    }
+                }
+            }
+
+            addLine();
+        }
+
+        // Toggle UI Visibility - Completely rewritten for smooth transitions
         const toggleBtn = document.getElementById('toggle-ui-btn');
         const toggleIcon = toggleBtn.querySelector('i');
         let uiVisible = true;
@@ -2594,11 +2990,19 @@
             uiVisible = !uiVisible;
             
             if (uiVisible) {
-                mainContent.classList.remove('hidden');
+                // SHOW MENU: Remove hidden state, menu fades IN smoothly
+                mainContent.classList.remove('ui-hidden');
+                mainContent.setAttribute('aria-hidden', 'false');
+                
+                // Update button icon and title
                 toggleIcon.className = 'fas fa-eye-slash';
                 toggleBtn.title = 'Hide UI';
             } else {
-                mainContent.classList.add('hidden');
+                // HIDE MENU: Add hidden state, menu fades OUT smoothly
+                mainContent.classList.add('ui-hidden');
+                mainContent.setAttribute('aria-hidden', 'true');
+                
+                // Update button icon and title
                 toggleIcon.className = 'fas fa-eye';
                 toggleBtn.title = 'Show UI';
             }
