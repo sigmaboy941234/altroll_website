@@ -1237,6 +1237,13 @@
         // Add fog for depth
         scene.fog = new THREE.FogExp2(0x0a0a0a, 0.0015);
         
+        // Camera orbit parameters for normal operation
+        const defaultCameraOrbit = {
+            radius: 80,
+            height: 30,
+            time: 0
+        };
+        
         // Create spinning wireframe Earth/planet
         const planetRadius = 40;
         const planetGeometry = new THREE.SphereGeometry(planetRadius, 64, 64);
@@ -1244,7 +1251,8 @@
         // Wireframe material
         const planetMaterial = new THREE.ShaderMaterial({
             uniforms: {
-                time: { value: 0 }
+                time: { value: 0 },
+                opacity: { value: 0.3 } // Visible from start
             },
             vertexShader: `
                 varying vec3 vPosition;
@@ -1257,12 +1265,12 @@
             `,
             fragmentShader: `
                 uniform float time;
+                uniform float opacity;
                 varying vec3 vPosition;
                 varying vec3 vNormal;
                 void main() {
                     // Wireframe lines - more visible
                     vec3 color = vec3(0.5, 0.5, 0.5);
-                    float opacity = 0.3;
                     gl_FragColor = vec4(color, opacity);
                 }
             `,
@@ -1388,8 +1396,8 @@
         const dotsMaterial = new THREE.PointsMaterial({
             size: 0.4,
             vertexColors: true,
-            transparent: false,
-            opacity: 1.0,
+            transparent: true,
+            opacity: 1.0, // Visible from start
             sizeAttenuation: true,
             blending: THREE.NormalBlending
         });
@@ -1404,7 +1412,7 @@
             const ringMaterial = new THREE.MeshBasicMaterial({
                 color: 0x666666,
                 transparent: true,
-                opacity: 0.2,
+                opacity: 0.2, // Visible from start
                 wireframe: false
             });
             const ring = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -1562,16 +1570,20 @@
         const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
         scene.add(ambientLight);
         
-        // Set camera position
-        camera.position.z = 80;
-        camera.position.y = 30;
+        // Set camera to normal starting position
+        camera.position.set(0, 30, 80);
         camera.lookAt(0, 0, 0);
         
         // Animation loop
         let time = 0;
+        let lastFrameTime = performance.now();
+        
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.016;
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+            time += deltaTime / 1000; // Convert ms to seconds
             
             // Animate background elements
             // Slowly rotate background stars
@@ -1604,6 +1616,16 @@
             }
             bgStarsGeometry.attributes.size.needsUpdate = true;
             
+            // Normal camera orbit
+            defaultCameraOrbit.time += deltaTime / 1000; // Convert ms to seconds
+            const orbitTime = defaultCameraOrbit.time;
+            const cameraRadius = defaultCameraOrbit.radius;
+            const cameraHeight = defaultCameraOrbit.height;
+            camera.position.x = Math.cos(orbitTime * 0.05) * cameraRadius;
+            camera.position.z = Math.sin(orbitTime * 0.05) * cameraRadius;
+            camera.position.y = cameraHeight + Math.sin(orbitTime * 0.08) * 5;
+            camera.lookAt(0, 0, 0);
+            
             // Rotate the planet
             planet.rotation.y += 0.002;
             
@@ -1614,14 +1636,6 @@
             orbitRings.forEach((ring, index) => {
                 ring.rotation.z += 0.0005 + index * 0.0003;
             });
-            
-            // Gentle camera orbit
-            const cameraRadius = 80;
-            const cameraHeight = 30;
-            camera.position.x = Math.cos(time * 0.05) * cameraRadius;
-            camera.position.z = Math.sin(time * 0.05) * cameraRadius;
-            camera.position.y = cameraHeight + Math.sin(time * 0.08) * 5;
-            camera.lookAt(0, 0, 0);
             
             renderer.render(scene, camera);
         }
