@@ -904,41 +904,40 @@
             pointer-events: auto; /* Enable clicks when ready */
         }
         
-        /* Page transition styles */
+        /* Page transition styles - Fixed to maintain container size */
         .page-view {
-            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
         }
         
         .page-view.hidden {
-            opacity: 0;
-            transform: translateX(-20px);
+            opacity: 0 !important;
+            transform: translateX(-10px) !important;
             pointer-events: none;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            visibility: hidden;
+            max-height: 0 !important;
+            overflow: hidden !important;
         }
         
         .contributions-page {
             opacity: 0;
-            transform: translateX(20px);
+            transform: translateX(10px);
             pointer-events: none;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            visibility: hidden;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
         }
         
         .contributions-page.active {
-            opacity: 1;
-            transform: translateX(0);
+            opacity: 1 !important;
+            transform: translateX(0) !important;
             pointer-events: auto;
-            position: relative;
-            visibility: visible;
+            max-height: 2000px !important; /* Large enough for content */
+            overflow: visible !important;
+        }
+        
+        /* Ensure contributions page links are visible by default */
+        .contributions-page .link-item {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
         }
         
         /* Back button styling */
