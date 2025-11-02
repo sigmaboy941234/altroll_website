@@ -7,15 +7,21 @@ This is a single-page portfolio built with **vanilla HTML/CSS/JS only** (no fram
 - **Production TypewriterEngine v2.0**: Delta-time based, frame-rate independent text animation system
 - **Entry screen**: Typewriter effect on "ALTROLL" text before main content reveals
 - **Audio integration**: Background music (`wof.mp3`) and typewriter sound effects (`Untitled video - Made with Clipchamp.mp3`)
+- **UI Toggle button**: Top-left button to hide/show portfolio content for viewing background animation
+- **SEO/Social meta tags**: Open Graph, Twitter Card, and Discord embed optimization
 
 ## File Structure
 
 ```
-index.html                       # Monolithic file: HTML + CSS + JS (~1760 lines)
-├── CSS (lines 9-730)           # All styles inline in <style> tag
-├── HTML (lines 731-768)        # Profile, social icons, links, footer
-└── JavaScript (lines 769-1760)  # Three.js scene + TypewriterEngine class
+index.html                       # Monolithic file: HTML + CSS + JS (~2609 lines)
+├── Meta Tags (lines 1-28)      # SEO, Open Graph, Twitter Card, theme-color
+├── CSS (lines 31-927)          # All styles inline in <style> tag
+├── HTML (lines 929-975)        # Entry screen, toggle button, canvas, main content
+└── JavaScript (lines 977-2607) # Three.js scene + TypewriterEngine class
 
+altrollpfp.jpg                   # Profile picture (used in embeds)
+wof.mp3                          # Background music audio
+Untitled video - Made with...   # Typewriter sound effect
 README.md                        # Project overview and features
 TYPEWRITER_DOCUMENTATION.md      # Complete TypewriterEngine API reference
 IMPLEMENTATION_SUMMARY.md        # Requirements checklist and deliverables
@@ -37,14 +43,14 @@ typewriter-tests.js             # Automated test harness (run in console)
 
 **Key variables**: `scene`, `camera`, `renderer`, `planet`, `dotsMesh`, `rings[]`, `mouse`, `targetRotation`
 
-### 2. Entry Screen Sequence (lines 1180-1230)
-- Fullscreen overlay with blurred background (`#entry-screen`)
+### 2. Entry Screen Sequence (lines ~1180-1230)
+- Fullscreen overlay with entry text cycling animation
 - Typewriter effect cycles "ALTROLL" text (types → waits 2s → deletes → repeats)
 - Click triggers:
   1. Play background audio (`wof.mp3`)
-  2. Remove blur from main content
-  3. Hide entry screen with fade transition
-  4. Start main typewriter sequence via `startTypewriterEffect()`
+  2. Hide entry screen with fade transition
+  3. Start main typewriter sequence via `startTypewriterEffect()`
+  4. Show UI toggle button after 820ms
 
 ### 3. TypewriterEngine Class (lines 1245-1573)
 **State machine architecture**: `idle → typing → paused/completed/skipped`
@@ -72,7 +78,7 @@ staggerDelay: 150           // delay between elements
 
 **Accessibility**: Auto-detects `prefers-reduced-motion` and switches to instant typing (10ms speed)
 
-### 4. Main Animation Sequence (lines 1586-1750, `startTypewriterEffect()`)
+### 4. Main Animation Sequence (lines ~1586-1750, `startTypewriterEffect()`)
 Orchestrates the entire UI reveal in phases:
 
 1. **Profile section** (delay 0ms): 
@@ -80,17 +86,23 @@ Orchestrates the entire UI reveal in phases:
    - Bio line 1 types after name (40ms base, 0.1 glitch)
    - Bio line 2 types after line 1 (40ms base, 0.05 glitch)
    
-2. **Social icons** (delay +3500ms): Stagger 4 icons with 150ms between each
+2. **Social icons** (delay +3500ms): Stagger 4 icons with 150ms between each, pop-in with bounce effect
 
-3. **Links section** (delay +800ms): Each link box appears with 800ms stagger
-   - Title types with sound (35ms base, 0.05 glitch)
-   - Description types silently after title (25ms base, no glitch, **no sound**)
+3. **Links section** (delay +800ms): Each link box fades in with 150ms stagger (no typewriter effect)
 
-4. **Footer** (delay +6000ms): Types with sound (30ms base, 0.05 glitch)
+4. **Footer** (delay +6000ms): Fades in smoothly with dynamic year from JavaScript
 
-**Timing rationale**: Descriptions don't play sound to prevent audio spam when multiple links type simultaneously
+**Key changes from previous versions**:
+- Social icons use simple pop-in effect (complex flying animation removed)
+- Links and footer no longer use typewriter effects (instant text display with fade)
+- Footer year is dynamic (`new Date().getFullYear()`)
 
-**Visibility handling**: Automatically pauses typewriters when tab is hidden (`document.hidden`), resumes on return
+### 5. UI Toggle Button (lines ~558-595, ~2588-2607)
+- Fixed position top-left corner (20px from edges)
+- Shows after entry screen dismissal (820ms delay)
+- Toggles `.main-content.hidden` class to reveal/hide UI
+- Icon switches: `fa-eye-slash` (visible) ↔ `fa-eye` (hidden)
+- Allows viewing Three.js background without UI overlay
 
 ## Key Patterns & Conventions
 
@@ -115,6 +127,15 @@ Orchestrates the entire UI reveal in phases:
 - **Error handling**: Always wrap `.play()` in `.catch()` for autoplay policy failures
 - **Cleanup**: Stop and reset `currentTime` when pausing/stopping
 
+**Audio File Requirements**:
+- **Background music**: `wof.mp3` - Plays at 100% volume, loops continuously, starts on entry click
+- **Typewriter sound**: `Untitled video - Made with Clipchamp.mp3` - Plays at 15% volume per character typed
+  - Uses `cloneNode()` for overlapping playback (multiple characters typing simultaneously)
+  - Keep sound short (< 100ms) to avoid overlap spam
+  - Must be subtle enough to not overwhelm at 10+ simultaneous instances (link section)
+- **Format**: MP3 files, placed in root directory
+- **Autoplay**: Triggered by user interaction (entry screen click) to comply with browser autoplay policies
+
 ## Common Workflows
 
 ### Adding New Typewriter Animations
@@ -133,10 +154,10 @@ typewriters.push(tw);  // Add to array for cleanup
 ```
 
 ### Modifying Timing Delays
-1. Locate `startTypewriterEffect()` function (line 1586)
+1. Locate `startTypewriterEffect()` function (line ~1586)
 2. Find the `sequenceDelay` value before target section
 3. Adjust `sequenceDelay += XXXX` (in milliseconds)
-4. For stagger within section, modify multiplier in `setTimeout(..., i * 800)`
+4. For stagger within section, modify multiplier in `setTimeout(..., i * 150)`
 
 ### Debugging Typewriter Issues
 - Check browser console for phase logs: `✓ Typewriter sequence completed`
@@ -153,8 +174,10 @@ Manual verification (see QUICK_REFERENCE.md):
 2. Click entry screen immediately
 3. Verify name types character-by-character
 4. Listen for typewriter sound (should be subtle, not overwhelming)
-5. Tab away and back - animations should pause/resume cleanly
-6. Check footer appears last (after ~6 second delay from links)
+5. Social icons should pop in after bio completes (with bounce)
+6. Links and footer should fade in smoothly (no typewriter effect)
+7. Toggle button should appear and work correctly (hide/show UI)
+8. Check footer displays current year dynamically
 
 ## Known Constraints
 
