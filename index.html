@@ -903,6 +903,92 @@
         .links.loaded {
             pointer-events: auto; /* Enable clicks when ready */
         }
+        
+        /* Page transition styles */
+        .page-view {
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .page-view.hidden {
+            opacity: 0;
+            transform: translateX(-20px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            visibility: hidden;
+        }
+        
+        .contributions-page {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            visibility: hidden;
+        }
+        
+        .contributions-page.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            position: relative;
+            visibility: visible;
+        }
+        
+        /* Back button styling */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(160, 160, 160, 0.2);
+            border-radius: 10px;
+            padding: 8px 16px;
+            color: #9ca3af;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .back-button:hover {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(160, 160, 160, 0.5);
+            color: #d1d5db;
+            transform: translateX(-4px);
+        }
+        
+        .back-button i {
+            font-size: 14px;
+        }
+        
+        /* Contributions header */
+        .contributions-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .contributions-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .contributions-header p {
+            color: #9ca3af;
+            font-size: 14px;
+        }
 
         .link-item {
             background: rgba(20, 20, 20, 0.85);
@@ -1124,8 +1210,8 @@
             </a>
         </div>
 
-        <!-- Links Section -->
-        <div class="links">
+        <!-- Main Page View -->
+        <div class="links page-view" id="main-page">
             <a href="https://discord.gg/SKxPYVUV8Q" class="link-item">
                 <div class="link-icon">
                     <i class="fab fa-discord"></i>
@@ -1139,39 +1225,13 @@
                 </div>
             </a>
 
-            <a href="https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds" class="link-item">
-                <div class="link-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div class="link-content">
-                    <div class="link-title">The Strongest Battlegrounds</div>
-                    <div class="link-description">Game I contributed to</div>
-                </div>
-                <div class="link-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </a>
-
-            <a href="https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO" class="link-item">
-                <div class="link-icon">
-                    <i class="fas fa-fire"></i>
-                </div>
-                <div class="link-content">
-                    <div class="link-title">Chakra Battlegrounds</div>
-                    <div class="link-description">Animation contributions</div>
-                </div>
-                <div class="link-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </a>
-
-            <a href="https://www.roblox.com/games/8573962925/Alternate-Battlegrounds" class="link-item">
+            <a href="#" class="link-item" id="contributions-button">
                 <div class="link-icon">
                     <i class="fas fa-gamepad"></i>
                 </div>
                 <div class="link-content">
-                    <div class="link-title">Alternate Battlegrounds</div>
-                    <div class="link-description">Game contributions & animations</div>
+                    <div class="link-title">My Contributions</div>
+                    <div class="link-description">Games I've contributed to</div>
                 </div>
                 <div class="link-arrow">
                     <i class="fas fa-arrow-right"></i>
@@ -1203,6 +1263,60 @@
                     <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
+        </div>
+
+        <!-- Contributions Page View -->
+        <div class="contributions-page" id="contributions-page">
+            <button class="back-button" id="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </button>
+
+            <div class="contributions-header">
+                <h2>My Contributions</h2>
+                <p>Games I've worked on as an animator</p>
+            </div>
+
+            <div class="links">
+                <a href="https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds" class="link-item">
+                    <div class="link-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="link-content">
+                        <div class="link-title">The Strongest Battlegrounds</div>
+                        <div class="link-description">Game I contributed to</div>
+                    </div>
+                    <div class="link-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO" class="link-item">
+                    <div class="link-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="link-content">
+                        <div class="link-title">Chakra Battlegrounds</div>
+                        <div class="link-description">Animation contributions</div>
+                    </div>
+                    <div class="link-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="https://www.roblox.com/games/8573962925/Alternate-Battlegrounds" class="link-item">
+                    <div class="link-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="link-content">
+                        <div class="link-title">Alternate Battlegrounds</div>
+                        <div class="link-description">Game contributions & animations</div>
+                    </div>
+                    <div class="link-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -2728,7 +2842,6 @@
             typewriterSequenceStarted = true;
             const profile = document.querySelector('.profile');
             const socialIcons = document.querySelector('.social-icons');
-            const links = document.querySelector('.links');
             const footer = document.querySelector('.footer');
 
             // Typewriter instances (cleanup later)
@@ -2814,35 +2927,38 @@
             // Simple function to show links and footer without typewriter effects
             function showLinksAndFooter() {
                 // 3. LINKS SECTION - Simple fade-in stagger
-                links.classList.add('tw-visible');
-                links.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                links.style.opacity = '1';
-                links.style.transform = 'translateY(0)';
-                
-                const linkItems = Array.from(links.querySelectorAll('.link-item'));
-                
-                linkItems.forEach((link, i) => {
+                const mainPage = document.getElementById('main-page');
+                if (mainPage) {
+                    mainPage.classList.add('tw-visible');
+                    mainPage.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    mainPage.style.opacity = '1';
+                    mainPage.style.transform = 'translateY(0)';
+                    
+                    const linkItems = Array.from(mainPage.querySelectorAll('.link-item'));
+                    
+                    linkItems.forEach((link, i) => {
+                        queueTimeout(() => {
+                            link.classList.add('tw-enter');
+                            link.style.opacity = '1';
+                            link.style.transform = 'translateY(0)';
+                        }, i * 150); // Stagger by 150ms
+                    });
+                    
+                    // 4. FOOTER - Simple fade-in with transition
                     queueTimeout(() => {
-                        link.classList.add('tw-enter');
-                        link.style.opacity = '1';
-                        link.style.transform = 'translateY(0)';
-                    }, i * 150); // Stagger by 150ms
-                });
-                
-                // 4. FOOTER - Simple fade-in with transition
-                queueTimeout(() => {
-                    footer.classList.add('tw-visible');
-                    footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                    footer.style.opacity = '1';
-                    footer.style.transform = 'translateY(0)';
-                    console.log('✓ UI sequence completed');
-                    
-                    // Enable link clicks now that everything is loaded
-                    links.classList.add('loaded');
-                    
-                    // Cleanup typewriters
-                    typewriters.forEach(tw => tw.destroy());
-                }, linkItems.length * 150 + 500); // After all links + 500ms delay
+                        footer.classList.add('tw-visible');
+                        footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        footer.style.opacity = '1';
+                        footer.style.transform = 'translateY(0)';
+                        console.log('✓ UI sequence completed');
+                        
+                        // Enable link clicks now that everything is loaded
+                        mainPage.classList.add('loaded');
+                        
+                        // Cleanup typewriters
+                        typewriters.forEach(tw => tw.destroy());
+                    }, linkItems.length * 150 + 500); // After all links + 500ms delay
+                }
             }
 
             // Handle visibility change (tab backgrounding)
@@ -3020,6 +3136,41 @@
                 toggleIcon.className = 'fas fa-eye';
                 toggleBtn.title = 'Show UI';
             }
+        });
+
+        // Page Navigation - Contributions page
+        const mainPage = document.getElementById('main-page');
+        const contributionsPage = document.getElementById('contributions-page');
+        const contributionsButton = document.getElementById('contributions-button');
+        const backButton = document.getElementById('back-button');
+
+        function showContributionsPage() {
+            // Hide main page
+            mainPage.classList.add('hidden');
+            
+            // Show contributions page
+            setTimeout(() => {
+                contributionsPage.classList.add('active');
+            }, 100);
+        }
+
+        function showMainPage() {
+            // Hide contributions page
+            contributionsPage.classList.remove('active');
+            
+            // Show main page
+            setTimeout(() => {
+                mainPage.classList.remove('hidden');
+            }, 100);
+        }
+
+        contributionsButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showContributionsPage();
+        });
+
+        backButton.addEventListener('click', () => {
+            showMainPage();
         });
     </script>
 </body>
