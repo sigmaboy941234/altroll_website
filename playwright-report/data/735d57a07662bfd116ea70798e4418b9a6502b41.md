@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - text: "|"
+  - generic [ref=e2]:
+    - generic [ref=e8]: "altroll@kali: ~"
+    - generic [ref=e9]:
+      - generic [ref=e10]: altroll@kali:~$ sudo systemctl start portfolio.service
+      - generic [ref=e11]:
+        - generic [ref=e12]: altroll@kali:~$ █
+        - generic [ref=e13]: Loading portfolio components...
+        - generic [ref=e16]: "[INFO] Initializing Three.js renderer..."
+        - generic [ref=e17]: "[INFO] Loading planet textures..."
+        - generic [ref=e20]: "[INFO] Generating continent data..."
+        - generic [ref=e23]: "[INFO] Creating orbital mechanics..."
+        - generic [ref=e26]: "[INFO] Spawning background stars..."
+        - generic [ref=e27]: "[INFO] Setting up particle systems..."
+        - generic [ref=e28]: "[INFO] Initializing lighting engine..."
+        - generic [ref=e29]: "[INFO] Loading social links..."
+        - generic [ref=e32]: "[INFO] Applying gray theme..."
+        - generic [ref=e33]: "[OK] Portfolio loaded successfully!"
+        - generic [ref=e34]: altroll@kali:~$ █
+  - button "Toggle UI":
+    - generic: 
+  - generic:
+    - generic:
+      - generic:
+        - img
+      - heading [level=1]: "@ALTROLL"
+      - paragraph: Roblox Animator • Moon Animator Specialist
+      - paragraph: 5+ years of advanced animation expertise
+    - generic:
+      - link:
+        - /url: https://twitter.com/ALTROLL_2
+        - generic: 
+      - link:
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic: 
+      - link:
+        - /url: https://youtube.com/@altroll-moon
+        - generic: 
+      - link:
+        - /url: https://roblox.com/users/1392202663/profile
+        - generic: 
+    - text:               
+    - generic:
+      - paragraph:
+        - text: © 2025
+        - link:
+          - /url: https://discord.gg/SKxPYVUV8Q
+          - text: ALTROLL
+        - text: • Moon Animator Specialist
+```

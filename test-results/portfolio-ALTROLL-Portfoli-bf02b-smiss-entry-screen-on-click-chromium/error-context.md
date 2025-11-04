@@ -1,0 +1,70 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - text: "|"
+  - button "Toggle UI" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: 
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img "ALTROLL Profile Picture" [ref=e8]
+      - heading "@ALTROLL" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Roblox Animat
+      - paragraph [ref=e12]: 5+ years of advanced animation expertise
+    - generic [ref=e13]:
+      - link "Twitter":
+        - /url: https://twitter.com/ALTROLL_2
+        - generic: 
+      - link "Discord":
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic: 
+      - link "YouTube":
+        - /url: https://youtube.com/@altroll-moon
+        - generic: 
+      - link "Roblox":
+        - /url: https://roblox.com/users/1392202663/profile
+        - generic: 
+    - generic:
+      - link " Discord Portfolio Latest updates, commissions & projects ":
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic:
+          - generic: 
+        - generic:
+          - generic: Discord Portfolio
+          - generic: Latest updates, commissions & projects
+        - generic:
+          - generic: 
+      - link " My Contributions Games I've contributed to ":
+        - /url: "#"
+        - generic:
+          - generic: 
+        - generic:
+          - generic: My Contributions
+          - generic: Games I've contributed to
+        - generic:
+          - generic: 
+      - link " Twitter/X Follow for updates & animations ":
+        - /url: https://twitter.com/ALTROLL_2
+        - generic:
+          - generic: 
+        - generic:
+          - generic: Twitter/X
+          - generic: Follow for updates & animations
+        - generic:
+          - generic: 
+      - link " YouTube Channel Animation showcases & tutorials ":
+        - /url: https://youtube.com/@altroll-moon
+        - generic:
+          - generic: 
+        - generic:
+          - generic: YouTube Channel
+          - generic: Animation showcases & tutorials
+        - generic:
+          - generic: 
+    - text:       
+    - paragraph [ref=e15]:
+      - text: © 2025
+      - link "ALTROLL" [ref=e16] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+      - text: • Moon Animator Specialist
+```

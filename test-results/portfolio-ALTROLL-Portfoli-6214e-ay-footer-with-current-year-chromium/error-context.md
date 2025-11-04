@@ -1,0 +1,62 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - text: "|"
+  - button "Toggle UI" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: 
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img "ALTROLL Profile Picture" [ref=e8]
+      - heading "@ALTROLL" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Roblox Animator • Moon Animator Specialist
+      - paragraph [ref=e11]: 5+ years of advanced animation expertise
+    - generic [ref=e12]:
+      - link "Twitter" [ref=e13] [cursor=pointer]:
+        - /url: https://twitter.com/ALTROLL_2
+        - generic [ref=e14]: 
+      - link "Discord" [ref=e15] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic [ref=e16]: 
+      - link "YouTube" [ref=e17] [cursor=pointer]:
+        - /url: https://youtube.com/@altroll-moon
+        - generic [ref=e18]: 
+      - link "Roblox" [ref=e19] [cursor=pointer]:
+        - /url: https://roblox.com/users/1392202663/profile
+        - generic [ref=e20]: 
+    - generic [ref=e21]:
+      - link " Discord Portfolio Latest updates, commissions & projects " [ref=e22] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic [ref=e24]: 
+        - generic [ref=e25]:
+          - generic [ref=e26]: Discord Portfolio
+          - generic [ref=e27]: Latest updates, commissions & projects
+        - generic [ref=e29]: 
+      - link " My Contributions Games I've contributed to " [ref=e30] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e32]: 
+        - generic [ref=e33]:
+          - generic [ref=e34]: My Contributions
+          - generic [ref=e35]: Games I've contributed to
+        - generic [ref=e37]: 
+      - link " Twitter/X Follow for updates & animations " [ref=e38] [cursor=pointer]:
+        - /url: https://twitter.com/ALTROLL_2
+        - generic [ref=e40]: 
+        - generic [ref=e41]:
+          - generic [ref=e42]: Twitter/X
+          - generic [ref=e43]: Follow for updates & animations
+        - generic [ref=e45]: 
+      - link " YouTube Channel Animation showcases & tutorials " [ref=e46] [cursor=pointer]:
+        - /url: https://youtube.com/@altroll-moon
+        - generic [ref=e48]: 
+        - generic [ref=e49]:
+          - generic [ref=e50]: YouTube Channel
+          - generic [ref=e51]: Animation showcases & tutorials
+        - generic [ref=e53]: 
+    - text:       
+    - paragraph [ref=e55]:
+      - text: © 2025
+      - link "ALTROLL" [ref=e56] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+      - text: • Moon Animator Specialist
+```

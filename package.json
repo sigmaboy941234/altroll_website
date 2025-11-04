@@ -1,5 +1,9 @@
 {
   "dependencies": {
     "three": "^0.128.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "serve": "^14.2.5"
   }
 }

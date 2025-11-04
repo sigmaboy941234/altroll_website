@@ -186,11 +186,6 @@
 
         /* Smooth entrance for links and icons */
         .social-icon,
-        .link-item {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
         .social-icon.tw-enter,
         .link-item.tw-enter {
             animation: twSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -343,10 +338,13 @@
             opacity: 0;
             transform: scale(0.98);
             pointer-events: none;
+            /* Height stabilization for view swaps - prevents CLS */
+            min-height: 60vh;
             /* Smooth transitions when toggling */
             transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
                         transform 1s cubic-bezier(0.4, 0, 0.2, 1),
-                        filter 0.8s ease;
+                        filter 0.8s ease,
+                        min-height 0.26s ease;
         }
         
         .container.visible {
@@ -892,52 +890,75 @@
             font-size: 20px;
         }
 
+        /* Group rhythm - stable spacing */
+        .profile {
+            margin-bottom: 32px;
+        }
+        
+        .social-icons {
+            margin-bottom: 28px;
+        }
+
         /* Links Section */
         .links {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 14px; /* Even spacing between link buttons */
             pointer-events: none; /* Disable clicks until loaded */
+            transform: none !important; /* Never offset at rest */
         }
         
         .links.loaded {
             pointer-events: auto; /* Enable clicks when ready */
         }
         
-        /* Page transition styles - Fixed to maintain container size */
-        .page-view {
-            transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
+        #main-page.links {
+            margin-top: 8px;
         }
         
-        .page-view.hidden {
-            opacity: 0 !important;
-            transform: translateX(-10px) !important;
-            pointer-events: none;
-            max-height: 0 !important;
-            overflow: hidden !important;
+        #contributions-page .links {
+            margin-top: 8px;
+            opacity: 1;              /* Keep contributions links visible */
+            transform: none;          /* Prevent residual transforms */
+            pointer-events: auto;     /* Ensure cards are clickable */
         }
         
+        /* Single-source view system: only active view participates in layout */
+        .page-view,
         .contributions-page {
+            display: none;              /* not in layout unless active */
+            position: relative;         /* participates in flow when active */
+            opacity: 1;
+            transform: none;
+            visibility: visible;
+            transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Active view only */
+        .page-view.is-active,
+        .contributions-page.is-active {
+            display: block;             /* now in layout */
+        }
+        
+        /* Optional entrance animation: transient only */
+        .view-enter {
             opacity: 0;
             transform: translateX(10px);
-            pointer-events: none;
-            max-height: 0;
-            overflow: hidden;
-            transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
         }
         
-        .contributions-page.active {
-            opacity: 1 !important;
-            transform: translateX(0) !important;
-            pointer-events: auto;
-            max-height: 2000px !important; /* Large enough for content */
-            overflow: visible !important;
+        .view-enter-done {
+            opacity: 1;
+            transform: none;
         }
         
-        /* Ensure contributions page links are visible by default */
-        .contributions-page .link-item {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .view-enter,
+            .view-enter-done {
+                transition: none !important;
+                transform: none !important;
+            }
         }
         
         /* Back button styling */
@@ -994,17 +1015,58 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(160, 160, 160, 0.2);
             border-radius: 10px;
-            padding: 8px 12px;
+            padding: 16px 18px;
             text-decoration: none;
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            min-height: 72px;
+            margin: 0 0 14px 0 !important; /* Force spacing between buttons */
+        }
+        
+        .link-item:last-child {
+            margin-bottom: 0 !important; /* Remove margin from last item */
+        }
+        
+        /* Main page: start hidden for stagger reveal */
+        .page-view .link-item {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(14px);
+        }
+        
+        /* Contributions page: always visible (no animation) */
+        .contributions-page .link-item {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        
+        /* Use transient class for intro only */
+        .link-item.enter {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        
+        .link-item.enter.done {
+            opacity: 1;
+            transform: none;
+        }
+        
+        /* Social icons at rest */
+        .social-icon {
+            transform: none;
+        }
+        
+        /* Reduced motion: instant */
+        @media (prefers-reduced-motion: reduce) {
+            .link-item.enter,
+            .link-item.enter.done {
+                transition: none !important;
+                transform: none !important;
+            }
         }
 
         .link-item::before {
@@ -1796,25 +1858,32 @@
         console.log('Starting typewriter animation...');
         let index = 0;
         let isDeleting = false;
+        let entryTypewriterRunning = true; // Track if typewriter should continue
+        let entryTypewriterTimeout = null; // Track timeout ID
 
         function typeWriter() {
+            if (!entryTypewriterRunning) {
+                console.log('Entry typewriter stopped');
+                return; // Stop if flag is set to false
+            }
+            
             if (!isDeleting && index < text.length) {
                 entryText.textContent = text.substring(0, index + 1);
                 console.log('Typing:', entryText.textContent);
                 index++;
-                setTimeout(typeWriter, 150);
+                entryTypewriterTimeout = setTimeout(typeWriter, 150);
             } else if (!isDeleting && index === text.length) {
-                setTimeout(() => {
+                entryTypewriterTimeout = setTimeout(() => {
                     isDeleting = true;
                     typeWriter();
                 }, 2000); // Wait 2 seconds before deleting
             } else if (isDeleting && index > 0) {
                 entryText.textContent = text.substring(0, index - 1);
                 index--;
-                setTimeout(typeWriter, 100);
+                entryTypewriterTimeout = setTimeout(typeWriter, 100);
             } else if (isDeleting && index === 0) {
                 isDeleting = false;
-                setTimeout(typeWriter, 500); // Wait 0.5s before retyping
+                entryTypewriterTimeout = setTimeout(typeWriter, 500); // Wait 0.5s before retyping
             }
         }
 
@@ -1875,10 +1944,11 @@
                 linksGroup.style.opacity = '1';
                 linksGroup.style.transform = 'translateY(0)';
                 linksGroup.querySelectorAll('.link-item').forEach(link => {
-                    link.classList.add('tw-enter');
+                    link.classList.add('enter', 'done'); // Use classes instead of inline styles
                     link.dataset.revealed = 'true';
-                    link.style.opacity = '1';
-                    link.style.transform = 'translateY(0)';
+                    // Remove inline styles - let CSS .done class control visibility
+                    link.style.opacity = '';
+                    link.style.transform = '';
                     link.classList.remove('tw-glitch');
                 });
             }
@@ -1914,7 +1984,7 @@
                 baseSpeed: 50,              // ms per character (base)
                 speedJitter: 20,            // random variance ±ms
                 cursorBlinkRate: 800,       // ms
-                glitchProbability: 0.15,    // 0-1
+                glitchProbability: 0,       // 0-1 (disabled to prevent layout shake)
                 glitchDuration: 300,        // ms
                 pauseOnPunctuation: 150,    // ms extra delay
                 maxDuration: 30000,         // ms safety timeout
@@ -1949,6 +2019,7 @@
                 this.rafId = null;
                 this.cursor = null;
                 this.timeoutId = null;
+                this.initialMinHeight = null;
                 
                 // Page Visibility tracking
                 this.pausedAt = null;
@@ -2007,6 +2078,15 @@
                 // Store original content
                 this.originalHTML = this.element.innerHTML;
                 
+                // Lock current height so layout stays stable while typing
+                const measuredHeight = this.element.getBoundingClientRect().height;
+                if (measuredHeight > 0) {
+                    this.initialMinHeight = measuredHeight;
+                    this.element.style.minHeight = `${measuredHeight}px`;
+                } else {
+                    this.initialMinHeight = null;
+                }
+
                 // Parse content preserving HTML
                 if (typeof content === 'string') {
                     this.tokens = this._tokenize(content);
@@ -2194,6 +2274,11 @@
                 
                 // Show all content instantly
                 this.element.innerHTML = this.originalHTML;
+
+                if (this.initialMinHeight !== null) {
+                    this.element.style.minHeight = '';
+                    this.initialMinHeight = null;
+                }
                 
                 if (this.onSkipCallback) {
                     this.onSkipCallback();
@@ -2241,6 +2326,11 @@
                 if (this.cursor && this.cursor.parentNode) {
                     this.cursor.remove();
                 }
+
+                if (this.initialMinHeight !== null && this.element) {
+                    this.element.style.minHeight = '';
+                    this.initialMinHeight = null;
+                }
                 
                 if (this.onCompleteCallback) {
                     this.onCompleteCallback();
@@ -2266,12 +2356,16 @@
              */
             destroy() {
                 this._cleanup();
+                if (this.element && this.initialMinHeight !== null) {
+                    this.element.style.minHeight = '';
+                }
                 this.element = null;
                 this.tokens = null;
                 this.cursor = null;
                 this.onCharCallback = null;
                 this.onCompleteCallback = null;
                 this.onSkipCallback = null;
+                this.initialMinHeight = null;
             }
 
             /**
@@ -2871,7 +2965,7 @@
                 if (h1) {
                     const tw1 = new TypewriterEngine(h1, {
                         baseSpeed: 60,
-                        glitchProbability: 0.2,
+                        glitchProbability: 0,
                         typewriterAudio: typewriterSound
                     });
                     
@@ -2881,7 +2975,7 @@
                             bioLine1.style.opacity = '1'; // Show before typing
                             const tw2 = new TypewriterEngine(bioLine1, {
                                 baseSpeed: 40,
-                                glitchProbability: 0.1,
+                                glitchProbability: 0,
                                 typewriterAudio: typewriterSound
                             });
                             
@@ -2891,7 +2985,7 @@
                                     bioLine2.style.opacity = '1'; // Show before typing
                                     const tw3 = new TypewriterEngine(bioLine2, {
                                         baseSpeed: 40,
-                                        glitchProbability: 0.05,
+                                        glitchProbability: 0,
                                         typewriterAudio: typewriterSound
                                     });
                                     
@@ -2923,41 +3017,76 @@
             
             // 2. SOCIAL ICONS - Now handled by AnimationController.start() after bio completes
             
-            // Simple function to show links and footer without typewriter effects
+            // Simple function to show links and footer - STRICT SEQUENCE
             function showLinksAndFooter() {
-                // 3. LINKS SECTION - Simple fade-in stagger
-                const mainPage = document.getElementById('main-page');
-                if (mainPage) {
-                    mainPage.classList.add('tw-visible');
-                    mainPage.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                    mainPage.style.opacity = '1';
-                    mainPage.style.transform = 'translateY(0)';
-                    
-                    const linkItems = Array.from(mainPage.querySelectorAll('.link-item'));
-                    
-                    linkItems.forEach((link, i) => {
-                        queueTimeout(() => {
-                            link.classList.add('tw-enter');
-                            link.style.opacity = '1';
-                            link.style.transform = 'translateY(0)';
-                        }, i * 150); // Stagger by 150ms
-                    });
-                    
+                const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+                
+                // Wait for social icons animation to complete first
+                queueTimeout(() => {
+                    // 3. LINKS SECTION - Stagger reveal with idempotent guard
+                    const mainPage = document.getElementById('main-page');
+                    if (mainPage && !mainPage.dataset.revealed) {
+                        mainPage.classList.add('tw-visible', 'is-active');
+                        mainPage.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        mainPage.style.opacity = '1';
+                        mainPage.style.transform = 'none';
+                        
+                        const linkItems = Array.from(mainPage.querySelectorAll('.link-item'));
+                        
+                        // Self-check: BEFORE stagger
+                        if (linkItems.length > 0) {
+                            const first = linkItems[0];
+                            const csBefore = getComputedStyle(first);
+                            console.debug('[stagger] BEFORE first item:', 
+                                'opacity', csBefore.opacity, 'transform', csBefore.transform);
+                        }
+                        
+                        linkItems.forEach((link, i) => {
+                            link.classList.remove('done');
+                            link.classList.add('enter');
+                            link.style.opacity = '';
+                            link.style.transform = '';
+
+                            queueTimeout(() => {
+                                link.classList.add('enter');
+                                queueTimeout(() => {
+                                    link.classList.add('done');
+                                    link.style.opacity = '';
+                                    link.style.transform = '';
+                                }, prefersReduced ? 0 : 70);
+                            }, prefersReduced ? 0 : (160 + i * 70)); // 160ms base + 70ms per item stagger
+                        });
+                        
+                        // Mark as revealed so we don't re-animate on back navigation
+                        mainPage.dataset.revealed = '1';
+                        
+                        // Self-check: AFTER stagger completes
+                        if (linkItems.length > 0) {
+                            queueTimeout(() => {
+                                const first = linkItems[0];
+                                const csAfter = getComputedStyle(first);
+                                console.debug('[stagger] AFTER first item:', 
+                                    'opacity', csAfter.opacity, 'transform', csAfter.transform);
+                                console.debug('[stagger] mainPage.dataset.revealed =', mainPage.dataset.revealed);
+                            }, prefersReduced ? 100 : (160 + linkItems.length * 70 + 100));
+                        }
+                    }
+                        
                     // 4. FOOTER - Simple fade-in with transition
                     queueTimeout(() => {
                         footer.classList.add('tw-visible');
                         footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                         footer.style.opacity = '1';
                         footer.style.transform = 'translateY(0)';
-                        console.log('✓ UI sequence completed');
+                        console.log('[UI] ✓ Intro sequence completed: typewriter → icons → tabs');
                         
                         // Enable link clicks now that everything is loaded
-                        mainPage.classList.add('loaded');
+                        if (mainPage) mainPage.classList.add('loaded');
                         
                         // Cleanup typewriters
                         typewriters.forEach(tw => tw.destroy());
-                    }, linkItems.length * 150 + 500); // After all links + 500ms delay
-                }
+                    }, prefersReduced ? 100 : 800); // After social icons + margin
+                }, 600); // Wait 600ms for icons to settle before showing tabs
             }
 
             // Handle visibility change (tab backgrounding)
@@ -2997,6 +3126,13 @@
 
         // Simple terminal loading - CLEAN VERSION FROM INDEX2
         entryScreen.addEventListener('click', () => {
+            // Stop entry typewriter immediately
+            entryTypewriterRunning = false;
+            if (entryTypewriterTimeout) {
+                clearTimeout(entryTypewriterTimeout);
+            }
+            console.log('✓ Entry typewriter stopped');
+            
             // Play audio
             audio.play().catch(err => console.log('Audio play failed:', err));
             
@@ -3137,40 +3273,173 @@
             }
         });
 
-        // Page Navigation - Contributions page
-        const mainPage = document.getElementById('main-page');
-        const contributionsPage = document.getElementById('contributions-page');
-        const contributionsButton = document.getElementById('contributions-button');
-        const backButton = document.getElementById('back-button');
+        // Page Navigation - Deterministic intro, watchdogs, and health checks
+        (function() {
+            // ---------- Utilities ----------
+            const log = (...a) => console.log('[UI]', ...a);
+            const warn = (...a) => console.warn('[UI]', ...a);
+            const q = (s, r=document) => r.querySelector(s);
+            const qa = (s, r=document) => Array.from(r.querySelectorAll(s));
+            const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        function showContributionsPage() {
-            // Hide main page
-            mainPage.classList.add('hidden');
-            
-            // Show contributions page
-            setTimeout(() => {
-                contributionsPage.classList.add('active');
-            }, 100);
-        }
+            // Hard selectors
+            const main = q('#main-page');
+            const contrib = q('#contributions-page');
+            const linksMain = main;
+            const linksCon = q('#contributions-page .links');
+            const iconsWrap = q('.social-icons');
+            const container = q('.container.main-content');
+            const goBtn = q('#contributions-button');
+            const backBtn = q('#back-button');
 
-        function showMainPage() {
-            // Hide contributions page
-            contributionsPage.classList.remove('active');
-            
-            // Show main page
-            setTimeout(() => {
-                mainPage.classList.remove('hidden');
-            }, 100);
-        }
+            // ---------- Assertions (self-checks) ----------
+            function assertDom() {
+                const errs = [];
+                if (!container) errs.push('container missing');
+                if (!main) errs.push('#main-page missing');
+                if (!contrib) errs.push('#contributions-page missing');
+                if (!iconsWrap) errs.push('.social-icons missing');
+                if (!linksMain) errs.push('main links missing');
+                if (!linksCon) errs.push('contrib links wrapper missing');
+                const mainCards = qa('.link-item', linksMain);
+                const contribCards = qa('.link-item', linksCon);
+                if (mainCards.length !== 4) errs.push(`main tabs count ${mainCards.length} != 4`);
+                if (contribCards.length !== 3) errs.push(`contrib games count ${contribCards.length} != 3`);
+                return errs;
+            }
 
-        contributionsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showContributionsPage();
-        });
+            // Rebuild contributions list if missing (fail-safe)
+            function rebuildContribIfNeeded() {
+                if (!linksCon) return;
+                const want = [
+                    {href:'https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds', icon:'fa-trophy', title:'The Strongest Battlegrounds', desc:'Game I contributed to'},
+                    {href:'https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO',   icon:'fa-fire',   title:'Chakra Battlegrounds',       desc:'Animation contributions'},
+                    {href:'https://www.roblox.com/games/8573962925/Alternate-Battlegrounds',       icon:'fa-gamepad',title:'Alternate Battlegrounds',    desc:'Game contributions & animations'},
+                ];
+                const have = qa('.link-item', linksCon);
+                if (have.length === 3) return;
 
-        backButton.addEventListener('click', () => {
-            showMainPage();
-        });
+                linksCon.innerHTML = want.map(x => `
+                    <a href="${x.href}" class="link-item">
+                        <div class="link-icon"><i class="fas ${x.icon}"></i></div>
+                        <div class="link-content">
+                            <div class="link-title">${x.title}</div>
+                            <div class="link-description">${x.desc}</div>
+                        </div>
+                        <div class="link-arrow"><i class="fas fa-arrow-right"></i></div>
+                    </a>
+                `).join('');
+                log('Rebuilt contributions list as fail-safe.');
+            }
+
+            // Ensure resting transforms are none (guards)
+            function clearResidualTransforms(root=document) {
+                const mainWrapper = q('#main-page');
+                const mainRevealed = mainWrapper?.dataset?.revealed === '1';
+
+                qa('.links, #main-page, #contributions-page, .social-icon', root)
+                    .forEach(el => {
+                        el.style.transform = 'none';
+                    });
+
+                qa('#main-page .link-item', root).forEach(el => {
+                    if (!mainRevealed) {
+                        el.style.opacity = '';
+                        el.style.transform = '';
+                        el.classList.add('enter');
+                        el.classList.remove('done');
+                    } else {
+                        el.style.transform = 'none';
+                        el.style.opacity = '';
+                        el.classList.add('enter');
+                        el.classList.add('done');
+                    }
+                });
+
+                qa('#contributions-page .link-item', root).forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                    el.classList.remove('enter');
+                    el.classList.add('done');
+                });
+            }
+
+            // Health inspector
+            window.__uiHealth = function() {
+                return {
+                    errors: assertDom(),
+                    mainActive: main?.classList.contains('is-active'),
+                    contribActive: contrib?.classList.contains('is-active'),
+                    mainCardCount: qa('.link-item', linksMain).length,
+                    contribCardCount: qa('.link-item', linksCon).length,
+                    residualTransforms: qa('.link-item').some(el => {
+                        const t = getComputedStyle(el).transform;
+                        return t !== 'none' && t !== 'matrix(1, 0, 0, 1, 0, 0)';
+                    })
+                };
+            };
+
+            // ---------- View controller ----------
+            function setActive(view) {
+                [main, contrib].forEach(v => v.classList.remove('is-active'));
+                view.classList.add('is-active');
+                clearResidualTransforms();
+                // Let CSS min-height handle container sizing naturally
+                container.style.minHeight = ''; // Remove inline style
+                log('Switched to', view.id);
+            }
+
+            // ---------- Wire up ----------
+            function init() {
+                rebuildContribIfNeeded();
+                
+                // Remove any inline min-height that was set by previous code
+                container.style.minHeight = '';
+                
+                setActive(main); // start on main
+                clearResidualTransforms();
+
+                // Watchdogs
+                const errs = assertDom();
+                if (errs.length) warn('DOM warnings:', errs);
+                else log('✓ DOM assertions passed');
+
+                // Watchdog: force any stuck cards visible after 1.8s (contributions only)
+                setTimeout(() => {
+                    qa('.contributions-page .link-item').forEach(el => {
+                        const cs = getComputedStyle(el);
+                        if (parseFloat(cs.opacity) === 0) {
+                            el.classList.add('done');
+                            el.classList.remove('enter');
+                            el.style.opacity = '1';
+                            el.style.transform = 'none';
+                            warn('Forced visible (watchdog):', el);
+                        }
+                    });
+                    clearResidualTransforms();
+                    log('✓ Watchdog check complete');
+                }, 1800);
+            }
+
+            goBtn?.addEventListener('click', e => { e.preventDefault(); setActive(contrib); });
+            backBtn?.addEventListener('click', e => { e.preventDefault(); setActive(main); });
+
+            // Re-run guards on visibility changes (tab out/in)
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    clearResidualTransforms();
+                    rebuildContribIfNeeded();
+                    log('✓ Visibility guards re-applied');
+                }
+            });
+
+            // Kickoff after DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init, {once:true});
+            } else {
+                init();
+            }
+        })();
     </script>
 </body>
 </html>

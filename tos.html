@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTROLL | Commissions Terms of Service & Past Work</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0b1120;
+            --panel: rgba(32, 32, 32, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.06);
+            --heading: #f3f4f6;
+            --subheading: #d1d5db;
+            --body: #c5c6c7;
+            --accent-red: #f87171;
+            --accent-yellow: #fbbf24;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --blur: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background:
+                radial-gradient(520px at 16% 20%, rgba(125, 211, 252, 0.24), transparent 70%),
+                radial-gradient(420px at 82% 22%, rgba(248, 113, 113, 0.18), transparent 70%),
+                radial-gradient(480px at 18% 82%, rgba(167, 139, 250, 0.18), transparent 72%),
+                radial-gradient(420px at 85% 78%, rgba(45, 212, 191, 0.16), transparent 72%),
+                linear-gradient(135deg, #0f172a 0%, #111827 40%, #0b1120 100%);
+            color: var(--body);
+            line-height: 1.7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px 80px;
+        }
+
+        .container {
+            width: min(980px, 100%);
+            background: linear-gradient(160deg, rgba(26, 26, 26, 0.85), rgba(17, 17, 17, 0.92));
+            border: 1px solid var(--panel-border);
+            border-radius: 28px;
+            padding: clamp(28px, 5vw, 48px);
+            position: relative;
+            box-shadow: 0 30px 120px rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(var(--blur));
+            overflow: hidden;
+        }
+
+        .container::before,
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            z-index: -2;
+        }
+
+        .container::before {
+            top: -12%;
+            left: -10%;
+            background: rgba(59, 130, 246, 0.45);
+        }
+
+        .container::after {
+            bottom: -15%;
+            right: -8%;
+            background: rgba(236, 72, 153, 0.45);
+        }
+
+        header {
+            display: grid;
+            gap: 18px;
+            margin-bottom: clamp(28px, 5vw, 48px);
+        }
+
+        .status-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            border-radius: 18px;
+            background: linear-gradient(120deg, rgba(15, 118, 110, 0.35), rgba(13, 148, 136, 0.18));
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            box-shadow: 0 15px 40px rgba(13, 148, 136, 0.25);
+        }
+
+        .status-block strong {
+            font-size: clamp(14px, 1.5vw, 16px);
+            color: rgba(20, 184, 166, 0.95);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .status-block span {
+            color: var(--heading);
+            font-weight: 500;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            color: var(--subheading);
+            font-size: 14px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-cluster {
+            align-self: center;
+            display: inline-flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px 20px;
+            border-radius: 18px;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.22);
+            box-shadow: 0 16px 40px rgba(37, 99, 235, 0.2);
+        }
+
+        .hero-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(226, 232, 240, 0.88);
+        }
+
+        .chip-main {
+            font-weight: 700;
+            color: rgba(191, 219, 254, 0.95);
+        }
+
+        .chip-divider {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        .chip-detail {
+            font-weight: 500;
+            color: rgba(226, 232, 240, 0.82);
+        }
+
+        header h1 {
+            font-size: clamp(34px, 3.2vw, 48px);
+            color: var(--heading);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        header p {
+            color: var(--subheading);
+            font-size: clamp(16px, 1.6vw, 18px);
+        }
+
+        section {
+            margin-bottom: clamp(24px, 4vw, 40px);
+        }
+
+        h2 {
+            font-size: clamp(22px, 2.2vw, 28px);
+            color: var(--heading);
+            margin-bottom: 18px;
+            position: relative;
+            letter-spacing: 0.04em;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            height: 1px;
+            width: 60px;
+            background: linear-gradient(90deg, var(--accent-cyan), transparent);
+            opacity: 0.75;
+        }
+
+        h3 {
+            font-size: clamp(18px, 1.9vw, 22px);
+            color: var(--subheading);
+            margin: 18px 0 10px;
+        }
+
+        p {
+            margin-bottom: 14px;
+        }
+
+        ul {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        li {
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.03);
+            backdrop-filter: blur(12px);
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .payment-card {
+            padding: 24px;
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(38, 38, 38, 0.9), rgba(20, 20, 20, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
+        }
+
+        .payment-card h3 {
+            font-size: 20px;
+            color: var(--heading);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .payment-card ul li {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(148, 163, 184, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pay-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 12px currentColor);
+        }
+
+        .glow-robux { color: rgba(234, 179, 8, 0.7); }
+        .glow-litecoin { color: rgba(59, 130, 246, 0.65); }
+        .glow-bitcoin { color: rgba(245, 158, 11, 0.85); }
+        .glow-ethereum { color: rgba(148, 163, 184, 0.6); }
+        .glow-solana { color: rgba(129, 140, 248, 0.75); }
+
+        .pricing-table,
+        .past-works {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45);
+        }
+
+        .pricing-table thead tr,
+        .past-works thead tr {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--heading);
+        }
+
+        .pricing-table th,
+        .pricing-table td,
+        .past-works th,
+        .past-works td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .pricing-table tbody tr:nth-child(even),
+        .past-works tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .past-works .terminated {
+            position: relative;
+        }
+
+        .past-works .terminated::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.8), transparent);
+        }
+
+        .terminated-label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .terminated-label span {
+            padding: 2px 12px;
+            border-radius: 999px;
+            background: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: rgba(248, 113, 113, 0.95);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            animation: pulseGlow 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from {
+                box-shadow: 0 0 6px rgba(248, 113, 113, 0.6);
+                opacity: 0.7;
+            }
+            to {
+                box-shadow: 0 0 22px rgba(248, 113, 113, 0.9);
+                opacity: 1;
+            }
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .capabilities-grid ul li {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .intro-line {
+            margin-bottom: 24px;
+            color: rgba(226, 232, 240, 0.82);
+            font-size: 15px;
+        }
+
+        .tos-list {
+            list-style: none;
+            counter-reset: tos-counter;
+            display: grid;
+            gap: 26px;
+        }
+
+        .tos-list li {
+            position: relative;
+            padding: 24px;
+            border-radius: 22px;
+            background: linear-gradient(150deg, rgba(25, 25, 25, 0.95), rgba(15, 15, 15, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.4);
+        }
+
+        .tos-list li::before {
+            counter-increment: tos-counter;
+            content: counter(tos-counter);
+            position: absolute;
+            top: 22px;
+            right: 24px;
+            font-size: 32px;
+            font-weight: 700;
+            color: rgba(148, 163, 184, 0.25);
+            letter-spacing: 0.05em;
+        }
+
+        .tos-list h3 {
+            margin: 0 0 12px;
+            color: var(--heading);
+            font-size: 18px;
+        }
+
+        .tos-list p {
+            margin: 0;
+        }
+
+        .closing-line {
+            margin-top: 26px;
+            text-align: center;
+            font-weight: 600;
+            color: rgba(226, 232, 240, 0.85);
+            letter-spacing: 0.04em;
+        }
+
+        em {
+            color: var(--accent-yellow);
+            font-style: normal;
+        }
+
+        strong {
+            color: var(--heading);
+        }
+
+        .accent-red {
+            color: var(--accent-red);
+            position: relative;
+        }
+
+        .accent-red::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: radial-gradient(circle, rgba(248, 113, 113, 0.25), transparent 70%);
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .accent-green {
+            color: var(--accent-green);
+            position: relative;
+        }
+
+        .accent-green::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: radial-gradient(circle, rgba(52, 211, 153, 0.22), transparent 70%);
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .accent-cyan {
+            color: var(--accent-cyan);
+            position: relative;
+        }
+
+        .accent-cyan::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 70%);
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        footer {
+            margin-top: clamp(36px, 6vw, 60px);
+            text-align: center;
+            color: rgba(148, 163, 184, 0.7);
+            font-size: 14px;
+        }
+
+        footer a {
+            color: rgba(226, 232, 240, 0.88);
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(226, 232, 240, 0.4);
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 40px 16px 60px;
+            }
+            header h1 {
+                letter-spacing: 0.08em;
+            }
+            li {
+                padding: 12px 14px;
+            }
+            .status-block {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .hero-cluster {
+                align-self: center;
+                width: 100%;
+                max-width: 320px;
+            }
+            .hero-chip {
+                justify-content: space-between;
+            }
+            .payment-card h3 {
+                font-size: 18px;
+            }
+            .tos-list li {
+                padding: 20px;
+            }
+            .tos-list li::before {
+                top: 18px;
+                right: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <div class="status-block">
+                <strong>Commission Status</strong>
+                <span class="accent-green">OPEN • Last updated: Aug 21, 2025</span>
+            </div>
+            <div class="pill">ALTROLL Commissions</div>
+            <div class="hero-cluster">
+                <div class="hero-chip">
+                    <span class="chip-main">R6</span>
+                    <span class="chip-divider">-</span>
+                    <span class="chip-detail">Primary Rig</span>
+                </div>
+                <div class="hero-chip">
+                    <span class="chip-main">Plugin Used</span>
+                    <span class="chip-divider">-</span>
+                    <span class="chip-detail">Moon Animator</span>
+                </div>
+                <div class="hero-chip">
+                    <span class="chip-main">5 Years</span>
+                    <span class="chip-divider">-</span>
+                    <span class="chip-detail">Experience</span>
+                </div>
+            </div>
+            <h1>Terms of Service &amp; Portfolio</h1>
+            <p>Transparent pricing, clear policies, and proven results for Roblox animation commissions.</p>
+        </header>
+
+        <section>
+            <h2>Payments</h2>
+            <div class="payment-grid">
+                <div class="payment-card">
+                    <h3><img src="assets/Robux_2019_Logo_gold.svg.png" alt="Robux" class="pay-icon glow-robux"> Robux Payments</h3>
+                    <ul>
+                        <li><img src="assets/Robux_2019_Logo_gold.svg.png" alt="Robux" class="pay-icon glow-robux"> Robux (Group Payouts)</li>
+                        <li><img src="assets/Robux_2019_Logo_gold.svg.png" alt="Robux" class="pay-icon glow-robux"> Robux (T-shirt)</li>
+                        <li><img src="assets/Robux_2019_Logo_gold.svg.png" alt="Robux" class="pay-icon glow-robux"> Robux (Percentage)</li>
+                    </ul>
+                </div>
+                <div class="payment-card">
+                    <h3><img src="assets/litecoin-ltc-logo.png" alt="Litecoin" class="pay-icon glow-litecoin"> Crypto Payments</h3>
+                    <ul>
+                        <li><img src="assets/litecoin-ltc-logo.png" alt="Litecoin" class="pay-icon glow-litecoin"> Litecoin</li>
+                        <li><img src="assets/bitcoin-btc-logo.png" alt="Bitcoin" class="pay-icon glow-bitcoin"> Bitcoin</li>
+                        <li><img src="assets/ethereum-eth-logo.png" alt="Ethereum" class="pay-icon glow-ethereum"> Ethereum</li>
+                        <li><img src="assets/solana-sol-logo.png" alt="Solana" class="pay-icon glow-solana"> Solana</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Prices</h2>
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Robux (R$)</th>
+                        <th>USD ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>M1 Pack</td>
+                        <td>1,000–2,000</td>
+                        <td>5–20</td>
+                    </tr>
+                    <tr>
+                        <td>Simple / Movements</td>
+                        <td>1,000–2,000</td>
+                        <td>10–20</td>
+                    </tr>
+                    <tr>
+                        <td>Skill / Ability (per)</td>
+                        <td>10,000+</td>
+                        <td>25–60</td>
+                    </tr>
+                    <tr>
+                        <td>Complex / Long (cutscenes)</td>
+                        <td>15,000–50,000+</td>
+                        <td>35–150</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Capabilities</h2>
+            <div class="capabilities-grid">
+                <div>
+                    <h3>What I can do</h3>
+                    <ul>
+                        <li>Combat M1s</li>
+                        <li>Skill Animations</li>
+                        <li>Basic/Advanced Movements</li>
+                        <li>Abilities</li>
+                        <li>Cutscenes &amp; Fighting Scenes</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>What I can't do</h3>
+                    <ul>
+                        <li>Viewmodels</li>
+                        <li>Dances</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Animation Terms of Service</h2>
+            <p class="intro-line">By commissioning me (DM'ing a brief, requesting work, or sending payment), you confirm you've read and agree to these terms. Breaches may result in the project being stopped and future work refused.</p>
+            <ol class="tos-list">
+                <li>
+                    <h3>Services &amp; Scope</h3>
+                    <p>Roblox animations with Moon Animator; I support R6 &amp; R15 (primarily R6).<br>
+                    I animate rigged models you provide. <span class="accent-red">I do not rig</span> models.<br>
+                    I do not do viewmodels or dances.<br>
+                    Pricing and timelines vary with complexity and quality of references.</p>
+                </li>
+                <li>
+                    <h3>Pricing (reference ranges)</h3>
+                    <p>M1 Pack: 1,000–2,000 R$ / $5–$20<br>
+                    Simple / Movements: 1,000–2,000 R$ / $10–$20<br>
+                    Skill / Ability (per): 10,000+ R$ / $25–$60<br>
+                    Complex / Long (cutscenes): 15,000–50,000+ R$ / $35–$150</p>
+                </li>
+                <li>
+                    <h3>Payments</h3>
+                    <p>Robux — Group Payouts, T-shirt purchase, or Percentage (rev share).<br>
+                    Crypto — Bitcoin, Litecoin, Ethereum, Solana.<br>
+                    Percentage only for released &amp; active games; terms must be agreed in writing before work starts.<br>
+                    <span class="accent-red">NO REFUNDS.</span> All payments are final. Reasonable in-scope fixes are included (see Revisions).</p>
+                </li>
+                <li>
+                    <h3>Revisions &amp; Adjustments</h3>
+                    <p>Included: up to two (2) minor revision rounds within the original brief.<br>
+                    After delivery: reasonable fixes within the original scope are free of charge.<br>
+                    Out-of-scope: new shots, major choreography, new rigs, or style changes are billed separately.</p>
+                </li>
+                <li>
+                    <h3>Client Duties</h3>
+                    <p>You own/have rights to all assets you provide (models, rigs, logos, audio, etc.).<br>
+                    Reference and feedback are expected to be provided in a timely manner; delays can push delivery.</p>
+                </li>
+                <li>
+                    <h3>Deliverables</h3>
+                    <p>Final format(s) as agreed (Roblox animation assets, keyframes/clips, or preview render).<br>
+                    Please back up your files after delivery; long-term storage on my side isn’t guaranteed.</p>
+                </li>
+                <li>
+                    <h3>Usage &amp; Restrictions</h3>
+                    <p>License: after delivery you get a non-transferable license to use the animation inside your game/project.<br>
+                    No resale/redistribution of the animation as a standalone asset/template.<br>
+                    Credit “Altroll” is appreciated where reasonable (e.g., game credits/description).<br>
+                    Your use must comply with Roblox/platform rules.</p>
+                </li>
+                <li>
+                    <h3>Scheduling, Communication &amp; Availability</h3>
+                    <p>I work pay-per-task and may accept long-term work depending on project &amp; rate.<br>
+                    Timelines are estimates; complexity and feedback speed can shift delivery.<br>
+                    If my message requests are flooded, ask a mutual to ping me to check them.</p>
+                </li>
+                <li>
+                    <h3>Termination &amp; Enforcement</h3>
+                    <p>Breach of these terms may result in immediate termination and refusal of future commissions.<br>
+                    On termination for breach, any license to use WIPs/finals may be revoked.</p>
+                </li>
+                <li>
+                    <h3>Updates</h3>
+                    <p>I may update this TOS; the version active when you commission applies to that project.</p>
+                </li>
+            </ol>
+            <p class="closing-line">By commissioning me, you automatically agree to these terms.</p>
+        </section>
+
+        <section>
+            <h2>Past Works</h2>
+            <table class="past-works">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Project</th>
+                        <th>Role / Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="terminated">
+                        <td>JJS</td>
+                        <td>Jujutsu Shenanigans</td>
+                        <td class="terminated-label"><span>(TERMINATED)</span></td>
+                    </tr>
+                    <tr>
+                        <td>TSB</td>
+                        <td>The Strongest Battlegrounds</td>
+                        <td>Contribution</td>
+                    </tr>
+                    <tr>
+                        <td>AZL</td>
+                        <td>Azure Latch</td>
+                        <td>Contribution</td>
+                    </tr>
+                    <tr>
+                        <td>PE</td>
+                        <td>Project Egoist</td>
+                        <td>Contribution</td>
+                    </tr>
+                    <tr>
+                        <td>Mugen</td>
+                        <td>Mugen</td>
+                        <td>Contribution — *Contract Work*</td>
+                    </tr>
+                    <tr>
+                        <td>BBZ</td>
+                        <td>Basketball Zero</td>
+                        <td>Contribution — *Contract Work*</td>
+                    </tr>
+                    <tr>
+                        <td>CBG</td>
+                        <td>Chakra Battlegrounds</td>
+                        <td>Full Time</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            © <span id="current-year"></span> <a href="https://altroll.net/">ALTROLL</a> • Roblox Animation Specialist
+        </footer>
+    </main>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

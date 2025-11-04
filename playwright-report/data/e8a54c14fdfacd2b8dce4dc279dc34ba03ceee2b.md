@@ -1,0 +1,62 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - text: "|"
+  - button "Toggle UI" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: 
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img "ALTROLL Profile Picture" [ref=e8]
+      - heading "@ALTROLL" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Roblox Animator • Moon Animator Specialist
+      - paragraph [ref=e11]: 5+ years of advanced animation expertise
+    - generic [ref=e12]:
+      - link "Twitter" [ref=e13] [cursor=pointer]:
+        - /url: https://twitter.com/ALTROLL_2
+        - generic [ref=e14]: 
+      - link "Discord" [ref=e15] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+        - generic [ref=e16]: 
+      - link "YouTube" [ref=e17] [cursor=pointer]:
+        - /url: https://youtube.com/@altroll-moon
+        - generic [ref=e18]: 
+      - link "Roblox" [ref=e19] [cursor=pointer]:
+        - /url: https://roblox.com/users/1392202663/profile
+        - generic [ref=e20]: 
+    - text:        
+    - generic [ref=e21]:
+      - button " Back" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: 
+        - generic [ref=e24]: Back
+      - generic [ref=e25]:
+        - heading "My Contributions" [level=2] [ref=e26]
+        - paragraph [ref=e27]: Games I've worked on as an animator
+      - generic [ref=e28]:
+        - link " The Strongest Battlegrounds Game I contributed to " [ref=e29] [cursor=pointer]:
+          - /url: https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds
+          - generic [ref=e31]: 
+          - generic [ref=e32]:
+            - generic [ref=e33]: The Strongest Battlegrounds
+            - generic [ref=e34]: Game I contributed to
+          - generic [ref=e36]: 
+        - link " Chakra Battlegrounds Animation contributions " [ref=e37] [cursor=pointer]:
+          - /url: https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO
+          - generic [ref=e39]: 
+          - generic [ref=e40]:
+            - generic [ref=e41]: Chakra Battlegrounds
+            - generic [ref=e42]: Animation contributions
+          - generic [ref=e44]: 
+        - link " Alternate Battlegrounds Game contributions & animations " [ref=e45] [cursor=pointer]:
+          - /url: https://www.roblox.com/games/8573962925/Alternate-Battlegrounds
+          - generic [ref=e47]: 
+          - generic [ref=e48]:
+            - generic [ref=e49]: Alternate Battlegrounds
+            - generic [ref=e50]: Game contributions & animations
+          - generic [ref=e52]: 
+    - paragraph [ref=e54]:
+      - text: © 2025
+      - link "ALTROLL" [ref=e55] [cursor=pointer]:
+        - /url: https://discord.gg/SKxPYVUV8Q
+      - text: • Moon Animator Specialist
+```
