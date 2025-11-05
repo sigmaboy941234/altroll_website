@@ -94,6 +94,14 @@
             width: 100%;
             height: 100%;
             z-index: 0;
+            pointer-events: none; /* Allow touch events to pass through on mobile */
+        }
+        
+        /* Enable pointer events on desktop for mouse interaction */
+        @media (hover: hover) and (pointer: fine) {
+            #canvas-container {
+                pointer-events: auto;
+            }
         }
 
         /* Entry Screen */
@@ -1408,24 +1416,20 @@
                     mouse.y = -(clientY / window.innerHeight) * 2 + 1;
                 }
                 
-                // Mouse events
-                document.addEventListener('mousemove', (event) => {
-                    updateMousePosition(event.clientX, event.clientY);
-                });
+                // Only enable mouse interaction on desktop devices
+                if (!isMobile) {
+                    // Mouse events for desktop only
+                    document.addEventListener('mousemove', (event) => {
+                        updateMousePosition(event.clientX, event.clientY);
+                    });
+                }
                 
-                // Touch events for mobile
-                document.addEventListener('touchmove', (event) => {
-                    event.preventDefault();
-                    if (event.touches.length > 0) {
-                        updateMousePosition(event.touches[0].clientX, event.touches[0].clientY);
-                    }
-                }, { passive: false });
-                
-                document.addEventListener('touchstart', (event) => {
-                    if (event.touches.length > 0) {
-                        updateMousePosition(event.touches[0].clientX, event.touches[0].clientY);
-                    }
-                });
+                // On mobile, keep the globe centered and don't interfere with scrolling
+                if (isMobile) {
+                    // Reset mouse position to center for mobile
+                    mouse.x = 0;
+                    mouse.y = 0;
+                }
                 
                 let time = 0;
                 let lastTime = performance.now();
