@@ -1286,7 +1286,7 @@
                 </div>
             </a>
 
-            <a href="#" class="link-item" id="contributions-button">
+            <a href="https://altroll.net/contributions" class="link-item" target="_blank" rel="noopener noreferrer">
                 <div class="link-icon">
                     <i class="fas fa-gamepad"></i>
                 </div>
@@ -3421,7 +3421,7 @@
                 }, 1800);
             }
 
-            goBtn?.addEventListener('click', e => { e.preventDefault(); setActive(contrib); });
+            // Contributions button now redirects externally - no event listener needed
             backBtn?.addEventListener('click', e => { e.preventDefault(); setActive(main); });
 
             // Re-run guards on visibility changes (tab out/in)
