@@ -916,16 +916,8 @@
             margin-top: 8px;
         }
         
-        #contributions-page .links {
-            margin-top: 8px;
-            opacity: 1;              /* Keep contributions links visible */
-            transform: none;          /* Prevent residual transforms */
-            pointer-events: auto;     /* Ensure cards are clickable */
-        }
-        
         /* Single-source view system: only active view participates in layout */
-        .page-view,
-        .contributions-page {
+        .page-view {
             display: none;              /* not in layout unless active */
             position: relative;         /* participates in flow when active */
             opacity: 1;
@@ -936,8 +928,7 @@
         }
         
         /* Active view only */
-        .page-view.is-active,
-        .contributions-page.is-active {
+        .page-view.is-active {
             display: block;             /* now in layout */
         }
         
@@ -959,55 +950,6 @@
                 transition: none !important;
                 transform: none !important;
             }
-        }
-        
-        /* Back button styling */
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(20, 20, 20, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(160, 160, 160, 0.2);
-            border-radius: 10px;
-            padding: 8px 16px;
-            color: #9ca3af;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-        
-        .back-button:hover {
-            background: rgba(30, 30, 30, 0.95);
-            border-color: rgba(160, 160, 160, 0.5);
-            color: #d1d5db;
-            transform: translateX(-4px);
-        }
-        
-        .back-button i {
-            font-size: 14px;
-        }
-        
-        /* Contributions header */
-        .contributions-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .contributions-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .contributions-header p {
-            color: #9ca3af;
-            font-size: 14px;
         }
 
         .link-item {
@@ -1036,12 +978,6 @@
         .page-view .link-item {
             opacity: 0;
             transform: translateY(14px);
-        }
-        
-        /* Contributions page: always visible (no animation) */
-        .contributions-page .link-item {
-            opacity: 1 !important;
-            transform: none !important;
         }
         
         /* Use transient class for intro only */
@@ -1286,7 +1222,7 @@
                 </div>
             </a>
 
-            <a href="https://altroll.net/contributions" class="link-item" target="_blank" rel="noopener noreferrer">
+            <a href="contributions.html" class="link-item">
                 <div class="link-icon">
                     <i class="fas fa-gamepad"></i>
                 </div>
@@ -1326,63 +1262,9 @@
             </a>
         </div>
 
-        <!-- Contributions Page View -->
-        <div class="contributions-page" id="contributions-page">
-            <button class="back-button" id="back-button">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back</span>
-            </button>
-
-            <div class="contributions-header">
-                <h2>My Contributions</h2>
-                <p>Games I've worked on as an animator</p>
-            </div>
-
-            <div class="links">
-                <a href="https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds" class="link-item">
-                    <div class="link-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="link-content">
-                        <div class="link-title">The Strongest Battlegrounds</div>
-                        <div class="link-description">Game I contributed to</div>
-                    </div>
-                    <div class="link-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-
-                <a href="https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO" class="link-item">
-                    <div class="link-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <div class="link-content">
-                        <div class="link-title">Chakra Battlegrounds</div>
-                        <div class="link-description">Animation contributions</div>
-                    </div>
-                    <div class="link-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-
-                <a href="https://www.roblox.com/games/8573962925/Alternate-Battlegrounds" class="link-item">
-                    <div class="link-icon">
-                        <i class="fas fa-gamepad"></i>
-                    </div>
-                    <div class="link-content">
-                        <div class="link-title">Alternate Battlegrounds</div>
-                        <div class="link-description">Game contributions & animations</div>
-                    </div>
-                    <div class="link-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-        </div>
-
         <!-- Footer -->
         <div class="footer">
-            <p>© <span id="current-year"></span> <a href="https://discord.gg/SKxPYVUV8Q">ALTROLL</a> • Moon Animator Specialist • <a href="https://altroll.net/tos">Terms of Service</a></p>
+            <p>© <span id="current-year"></span> <a href="https://discord.gg/SKxPYVUV8Q">ALTROLL</a> • Moon Animator Specialist • <a href="https://altroll.net/tos" target="_blank" rel="noopener noreferrer">Terms of Service</a></p>
         </div>
     </div>
 
@@ -3284,52 +3166,20 @@
 
             // Hard selectors
             const main = q('#main-page');
-            const contrib = q('#contributions-page');
             const linksMain = main;
-            const linksCon = q('#contributions-page .links');
             const iconsWrap = q('.social-icons');
             const container = q('.container.main-content');
-            const goBtn = q('#contributions-button');
-            const backBtn = q('#back-button');
 
             // ---------- Assertions (self-checks) ----------
             function assertDom() {
                 const errs = [];
                 if (!container) errs.push('container missing');
                 if (!main) errs.push('#main-page missing');
-                if (!contrib) errs.push('#contributions-page missing');
                 if (!iconsWrap) errs.push('.social-icons missing');
                 if (!linksMain) errs.push('main links missing');
-                if (!linksCon) errs.push('contrib links wrapper missing');
                 const mainCards = qa('.link-item', linksMain);
-                const contribCards = qa('.link-item', linksCon);
                 if (mainCards.length !== 4) errs.push(`main tabs count ${mainCards.length} != 4`);
-                if (contribCards.length !== 3) errs.push(`contrib games count ${contribCards.length} != 3`);
                 return errs;
-            }
-
-            // Rebuild contributions list if missing (fail-safe)
-            function rebuildContribIfNeeded() {
-                if (!linksCon) return;
-                const want = [
-                    {href:'https://www.roblox.com/games/10449761463/The-Strongest-Battlegrounds', icon:'fa-trophy', title:'The Strongest Battlegrounds', desc:'Game I contributed to'},
-                    {href:'https://www.roblox.com/games/15330858308/Chakra-Battlegrounds-DEMO',   icon:'fa-fire',   title:'Chakra Battlegrounds',       desc:'Animation contributions'},
-                    {href:'https://www.roblox.com/games/8573962925/Alternate-Battlegrounds',       icon:'fa-gamepad',title:'Alternate Battlegrounds',    desc:'Game contributions & animations'},
-                ];
-                const have = qa('.link-item', linksCon);
-                if (have.length === 3) return;
-
-                linksCon.innerHTML = want.map(x => `
-                    <a href="${x.href}" class="link-item">
-                        <div class="link-icon"><i class="fas ${x.icon}"></i></div>
-                        <div class="link-content">
-                            <div class="link-title">${x.title}</div>
-                            <div class="link-description">${x.desc}</div>
-                        </div>
-                        <div class="link-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </a>
-                `).join('');
-                log('Rebuilt contributions list as fail-safe.');
             }
 
             // Ensure resting transforms are none (guards)
@@ -3337,7 +3187,7 @@
                 const mainWrapper = q('#main-page');
                 const mainRevealed = mainWrapper?.dataset?.revealed === '1';
 
-                qa('.links, #main-page, #contributions-page, .social-icon', root)
+                qa('.links, #main-page, .social-icon', root)
                     .forEach(el => {
                         el.style.transform = 'none';
                     });
@@ -3355,13 +3205,6 @@
                         el.classList.add('done');
                     }
                 });
-
-                qa('#contributions-page .link-item', root).forEach(el => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                    el.classList.remove('enter');
-                    el.classList.add('done');
-                });
             }
 
             // Health inspector
@@ -3369,9 +3212,7 @@
                 return {
                     errors: assertDom(),
                     mainActive: main?.classList.contains('is-active'),
-                    contribActive: contrib?.classList.contains('is-active'),
                     mainCardCount: qa('.link-item', linksMain).length,
-                    contribCardCount: qa('.link-item', linksCon).length,
                     residualTransforms: qa('.link-item').some(el => {
                         const t = getComputedStyle(el).transform;
                         return t !== 'none' && t !== 'matrix(1, 0, 0, 1, 0, 0)';
@@ -3381,7 +3222,7 @@
 
             // ---------- View controller ----------
             function setActive(view) {
-                [main, contrib].forEach(v => v.classList.remove('is-active'));
+                [main].forEach(v => v.classList.remove('is-active'));
                 view.classList.add('is-active');
                 clearResidualTransforms();
                 // Let CSS min-height handle container sizing naturally
@@ -3391,8 +3232,6 @@
 
             // ---------- Wire up ----------
             function init() {
-                rebuildContribIfNeeded();
-                
                 // Remove any inline min-height that was set by previous code
                 container.style.minHeight = '';
                 
@@ -3404,31 +3243,15 @@
                 if (errs.length) warn('DOM warnings:', errs);
                 else log('✓ DOM assertions passed');
 
-                // Watchdog: force any stuck cards visible after 1.8s (contributions only)
-                setTimeout(() => {
-                    qa('.contributions-page .link-item').forEach(el => {
-                        const cs = getComputedStyle(el);
-                        if (parseFloat(cs.opacity) === 0) {
-                            el.classList.add('done');
-                            el.classList.remove('enter');
-                            el.style.opacity = '1';
-                            el.style.transform = 'none';
-                            warn('Forced visible (watchdog):', el);
-                        }
-                    });
-                    clearResidualTransforms();
-                    log('✓ Watchdog check complete');
-                }, 1800);
+                // Initial setup complete
+                clearResidualTransforms();
+                log('✓ Setup complete');
             }
-
-            // Contributions button now redirects externally - no event listener needed
-            backBtn?.addEventListener('click', e => { e.preventDefault(); setActive(main); });
 
             // Re-run guards on visibility changes (tab out/in)
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     clearResidualTransforms();
-                    rebuildContribIfNeeded();
                     log('✓ Visibility guards re-applied');
                 }
             });
