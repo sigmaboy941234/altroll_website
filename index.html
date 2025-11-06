@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>ALTROLL | Roblox Animator & Moon Animator Specialist</title>
     
     <!-- Primary Meta Tags -->
@@ -40,7 +43,9 @@
             background: #0a0a0a;
             color: #fff;
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
             height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,6 +54,9 @@
             overflow: hidden;
             transform-style: preserve-3d;
             perspective: 1000px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
         }
 
         /* Entry screen overlay */
@@ -202,6 +210,48 @@
             }
         }
 
+        /* iOS and Mobile-Specific Optimizations */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS Safari specific styles */
+            body {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .social-icon,
+            .link-item,
+            .toggle-button {
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+            }
+
+            /* Fix for iOS input zoom */
+            input, textarea, select {
+                font-size: 16px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            /* Remove hover effects that don't work on touch */
+            * {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            /* Ensure smooth scrolling on touch devices */
+            html {
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Optimize animations for mobile performance */
+            .social-icon,
+            .link-item {
+                will-change: auto; /* Don't pre-allocate for hover */
+            }
+        }
+
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
             .tw-cursor {
@@ -217,6 +267,7 @@
                 animation: none !important;
             }
 
+            .social-icon,
             .icon-launch,
             .icon-bloom,
             .icon-ring,
@@ -325,14 +376,16 @@
         .container {
             max-width: 600px;
             width: 100%;
+            width: clamp(280px, 95vw, 600px); /* Responsive width with limits */
             position: relative;
             z-index: 1;
             filter: blur(40px);
             transform-style: preserve-3d;
             background: linear-gradient(180deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.75) 50%, rgba(10, 10, 10, 0.85) 100%);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 40px 20px;
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: clamp(16px, 4vw, 24px); /* Responsive border radius */
+            padding: clamp(30px, 6vw, 40px) clamp(16px, 4vw, 20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             /* Start hidden for initial load */
             opacity: 0;
@@ -340,11 +393,15 @@
             pointer-events: none;
             /* Height stabilization for view swaps - prevents CLS */
             min-height: 60vh;
+            min-height: clamp(500px, 60vh, 800px);
             /* Smooth transitions when toggling */
             transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
                         transform 1s cubic-bezier(0.4, 0, 0.2, 1),
                         filter 0.8s ease,
                         min-height 0.26s ease;
+            /* Mobile optimization */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
         
         .container.visible {
@@ -452,20 +509,22 @@
         }
 
         .profile h1 {
-            font-size: 28px;
+            font-size: clamp(24px, 6vw, 32px); /* Responsive font size */
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: clamp(6px, 2vh, 10px);
             background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            color: #fff; /* Fallback for browsers without gradient clip support */
+            line-height: 1.2;
         }
 
         .profile p {
             color: #9ca3af;
-            font-size: 15px;
+            font-size: clamp(14px, 3.5vw, 16px); /* Responsive font size */
             line-height: 1.6;
-            max-width: 400px;
+            max-width: min(400px, 90vw); /* Responsive max width */
             margin: 0 auto;
         }
 
@@ -477,133 +536,157 @@
             margin-top: 0;
         }
 
-        /* Social Icons */
+        /* Social Icons - Professional shadcn/ui Inspired Animation */
         .social-icons {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 40px;
+            gap: clamp(12px, 3vw, 16px);
+            margin-bottom: clamp(30px, 6vh, 40px);
             flex-wrap: wrap;
+            padding: 0 10px;
         }
 
         .social-icon {
-            width: 44px;
-            height: 44px;
+            /* Touch-friendly sizing */
+            width: clamp(44px, 12vw, 52px);
+            height: clamp(44px, 12vw, 52px);
+            
+            /* Modern glassmorphic design */
             background: rgba(30, 30, 30, 0.85);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(160, 160, 160, 0.25);
-            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            
+            /* Border styling */
+            border: 1px solid rgba(160, 160, 160, 0.2);
+            border-radius: 14px;
+            
+            /* Flexbox centering */
             display: flex;
             align-items: center;
             justify-content: center;
+            
+            /* Icon styling */
             color: #9ca3af;
-            font-size: 18px;
+            font-size: clamp(18px, 5vw, 22px);
             text-decoration: none;
-            transition: all 0.3s ease;
+            
+            /* Initial state - completely hidden */
+            opacity: 0;
+            visibility: hidden;
+            
+            /* Position for effects */
             position: relative;
             overflow: hidden;
-            opacity: 0;
-            transform: translateY(12px) scale(0.92);
-            pointer-events: none;
+            
+            /* Hardware acceleration - minimal */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
+        /* Entrance animation keyframes - clean fade with subtle lift */
+        @keyframes iconFadeIn {
+            0% {
+                opacity: 0;
+                visibility: visible;
+                transform: translateZ(0) translateY(6px);
+            }
+            100% {
+                opacity: 1;
+                visibility: visible;
+                transform: translateZ(0) translateY(0);
+            }
+        }
+
+        /* Applied when icon becomes visible */
+        .social-icon.animate-in {
+            animation: iconFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Once animation completes, enable smooth hover transitions */
+        .social-icon.animate-complete {
+            transition: 
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        /* Shimmer effect */
         .social-icon::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(156, 163, 175, 0.1), rgba(209, 213, 219, 0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .social-icon:hover {
-            background: rgba(50, 50, 50, 0.95);
-            backdrop-filter: blur(10px);
-            border-color: #9ca3af;
-            color: #d1d5db;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(156, 163, 175, 0.4);
-        }
-
-        .social-icon:hover::before {
-            opacity: 1;
-        }
-
-        .social-icon i {
-            position: relative;
-            z-index: 1;
-        }
-
-        .social-icon.icon-button--visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease;
-        }
-
-        .social-icon.icon-button--visible:hover {
-            transform: translateY(-3px) scale(1.02);
-        }
-
-        .social-icon.icon-button--pop {
-            animation: iconPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        @keyframes iconPop {
-            0% { transform: scale(1); }
-            45% { transform: scale(1.12); }
-            70% { transform: scale(0.96); }
-            100% { transform: scale(1); }
-        }
-
-        .icon-bloom, .icon-ring {
-            position: absolute;
-            inset: 0;
+            inset: -100%;
+            background: linear-gradient(
+                135deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.15) 50%,
+                transparent 100%
+            );
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            transition: transform 0.5s ease;
             pointer-events: none;
         }
 
-        .icon-bloom {
-            background: radial-gradient(circle, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0));
-            opacity: 0;
-            border-radius: 50%;
-            transform: scale(0.6);
-            animation: bloomPulse 380ms ease-out forwards;
-        }
-
-        @keyframes bloomPulse {
-            0% { opacity: 0; transform: scale(0.4); }
-            40% { opacity: 0.7; transform: scale(1.1); }
-            100% { opacity: 0; transform: scale(1.5); }
-        }
-
-        .icon-ring {
-            border-radius: 50%;
-            border: 2px solid rgba(191, 219, 254, 0.65);
-            transform: scale(0.4);
-            opacity: 0.9;
-            animation: ringExpand 420ms ease-out forwards;
-        }
-
-        @keyframes ringExpand {
-            0% { transform: scale(0.4); opacity: 0.8; }
-            70% { opacity: 0.4; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
-
-        .icon-spark {
+        /* Glow ring effect */
+        .social-icon::after {
+            content: '';
             position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(226, 232, 240, 0.9);
+            inset: 0;
+            border-radius: 14px;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(156, 163, 175, 0.4), rgba(209, 213, 219, 0.4));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
             opacity: 0;
-            animation: sparkBurst 360ms ease-out forwards;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
         }
 
-        @keyframes sparkBurst {
-            0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translate(var(--spark-x), var(--spark-y)) scale(0.2); opacity: 0; }
+        /* Icon element */
+        .social-icon i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover effects - desktop only */
+        @media (hover: hover) and (pointer: fine) {
+            .social-icon.animate-complete:hover {
+                background: rgba(50, 50, 50, 0.95);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-color: rgba(160, 160, 160, 0.45);
+                color: #e5e7eb;
+                transform: translateY(-4px) scale(1.05);
+                box-shadow: 
+                    0 12px 30px rgba(156, 163, 175, 0.25),
+                    0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+
+            .social-icon.animate-complete:hover::before {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+
+            .social-icon.animate-complete:hover::after {
+                opacity: 1;
+            }
+
+            .social-icon.animate-complete:hover i {
+                transform: translateY(-2px) scale(1.1);
+            }
+        }
+
+        /* Active state for touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .social-icon.animate-complete:active {
+                transform: scale(0.95);
+                background: rgba(50, 50, 50, 0.95);
+            }
         }
 
         /* Toggle UI Button */
@@ -955,19 +1038,26 @@
         .link-item {
             background: rgba(20, 20, 20, 0.85);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(160, 160, 160, 0.2);
-            border-radius: 10px;
-            padding: 16px 18px;
+            border-radius: clamp(8px, 2vw, 12px); /* Responsive border radius */
+            padding: clamp(14px, 3vw, 18px) clamp(16px, 4vw, 20px);
             text-decoration: none;
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: clamp(10px, 2.5vw, 14px); /* Responsive gap */
             transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            min-height: 72px;
-            margin: 0 0 14px 0 !important; /* Force spacing between buttons */
+            min-height: clamp(64px, 15vw, 76px); /* Touch-friendly minimum */
+            margin: 0 0 clamp(12px, 2.5vh, 16px) 0 !important; /* Responsive spacing */
+            /* Mobile optimization */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
         .link-item:last-child {
@@ -988,11 +1078,6 @@
         
         .link-item.enter.done {
             opacity: 1;
-            transform: none;
-        }
-        
-        /* Social icons at rest */
-        .social-icon {
             transform: none;
         }
         
@@ -1102,14 +1187,57 @@
             color: #d1d5db;
         }
 
-        /* Responsive */
-        @media (max-width: 640px) {
+        /* Responsive Design - Mobile First Approach */
+        
+        /* Small mobile devices (portrait phones, < 375px) */
+        @media (max-width: 374px) {
             body {
-                padding: 30px 16px;
+                padding: 20px 12px;
+            }
+
+            #entry-text {
+                font-size: 20px;
+                letter-spacing: 2px;
             }
 
             .profile h1 {
+                font-size: 22px;
+            }
+
+            .profile p {
+                font-size: 13px;
+            }
+
+            .social-icons {
+                gap: 10px;
+            }
+
+            .link-item {
+                padding: 14px;
+            }
+
+            .link-title {
+                font-size: 14px;
+            }
+
+            .link-description {
+                font-size: 11px;
+            }
+        }
+
+        /* Standard mobile devices (375px - 640px) */
+        @media (min-width: 375px) and (max-width: 640px) {
+            body {
+                padding: 25px 16px;
+            }
+
+            #entry-text {
                 font-size: 24px;
+                letter-spacing: 3px;
+            }
+
+            .profile h1 {
+                font-size: 26px;
             }
 
             .profile p {
@@ -1123,11 +1251,70 @@
             .link-description {
                 font-size: 12px;
             }
+        }
+
+        /* General mobile adjustments (all phones) */
+        @media (max-width: 640px) {
+            /* Safe area insets for notched devices */
+            body {
+                padding: max(env(safe-area-inset-top), 20px) 
+                         max(env(safe-area-inset-right), 16px)
+                         max(env(safe-area-inset-bottom), 20px)
+                         max(env(safe-area-inset-left), 16px);
+            }
+
+            /* Larger touch targets for better mobile UX */
+            .link-item {
+                min-height: 68px;
+                padding: 16px 18px;
+            }
+
+            /* Optimize social icon spacing */
+            .social-icons {
+                margin-bottom: 30px;
+            }
+
+            /* Improve readability on small screens */
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        /* Tablets (641px - 1024px) */
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .container {
+                max-width: 600px;
+            }
 
             .social-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+
+        /* Landscape mobile devices */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 15px 20px;
+                align-items: flex-start;
+                overflow-y: auto;
+            }
+
+            .container {
+                margin-top: 0;
+            }
+
+            .profile {
+                margin-bottom: 20px;
+            }
+
+            .social-icons {
+                margin-bottom: 20px;
+            }
+
+            .links {
+                margin-bottom: 20px;
             }
         }
 
@@ -1815,7 +2002,8 @@
             }
 
             socialIconButtons.forEach(icon => {
-                icon.classList.add('icon-button--visible');
+                icon.classList.add('animate-in', 'animate-complete');
+                icon.style.animation = 'none';
                 icon.style.opacity = '1';
                 icon.style.transform = 'translateY(0) scale(1)';
             });
@@ -2289,12 +2477,17 @@
                         socialIconsContainer.classList.add('tw-visible');
                     }
                     
-                    // Stagger pop-in for each icon
+                    // Staggered fade-in animation inspired by shadcn/ui
                     socialIconButtons.forEach((btn, index) => {
                         queueTimeout(() => {
-                            btn.classList.add('icon-button--visible', 'icon-button--pop');
-                            queueTimeout(() => btn.classList.remove('icon-button--pop'), 420);
-                        }, index * 150); // 150ms stagger
+                            // Trigger animation
+                            btn.classList.add('animate-in');
+                            
+                            // After animation completes (500ms), enable hover transitions
+                            queueTimeout(() => {
+                                btn.classList.add('animate-complete');
+                            }, 500);
+                        }, index * 100); // 100ms stagger
                     });
                 }
                 
@@ -2302,10 +2495,12 @@
                     if (!hasStarted) {
                         start();
                     }
-                    // Instantly show all icons
+                    // Instantly show all icons without animation
                     socialIconButtons.forEach(btn => {
-                        btn.classList.add('icon-button--visible');
-                        btn.classList.remove('icon-button--pop');
+                        btn.classList.add('animate-in', 'animate-complete');
+                        btn.style.animation = 'none';
+                        btn.style.opacity = '1';
+                        btn.style.transform = 'translateY(0) scale(1)';
                     });
                 }
                 
@@ -2372,12 +2567,14 @@
                         }
                         slot.setAttribute('tabindex', '-1');
 
-                        // Measure position in FINAL visible state (not default shifted state)
-                        // Temporarily apply visible class to measure where it will be, then remove it
-                        const hadVisibleClass = slot.classList.contains('icon-button--visible');
-                        if (!hadVisibleClass) {
-                            slot.classList.add('icon-button--visible');
-                            slot.style.transition = 'none'; // Disable transition during measurement
+                        // Measure position in FINAL visible state
+                        // Temporarily apply animation classes to measure where it will be
+                        const hadAnimateClass = slot.classList.contains('animate-complete');
+                        if (!hadAnimateClass) {
+                            slot.classList.add('animate-in', 'animate-complete');
+                            slot.style.animation = 'none';
+                            slot.style.opacity = '1';
+                            slot.style.transform = 'translateY(0) scale(1)';
                         }
                         
                         // Force layout recalculation
@@ -2385,13 +2582,12 @@
                         const targetCenterX = slotRect.left + slotRect.width / 2;
                         const targetCenterY = slotRect.top + slotRect.height / 2;
                         
-                        // Remove visible class and restore state
-                        if (!hadVisibleClass) {
-                            slot.classList.remove('icon-button--visible');
-                            // Re-enable transition after a frame
-                            requestAnimationFrame(() => {
-                                slot.style.transition = '';
-                            });
+                        // Remove classes and restore initial state
+                        if (!hadAnimateClass) {
+                            slot.classList.remove('animate-in', 'animate-complete');
+                            slot.style.animation = '';
+                            slot.style.opacity = '';
+                            slot.style.transform = '';
                         }
                         
                         console.log(`[IconLanding] ${config.id} final visible position cached:`, {
@@ -2597,13 +2793,11 @@
                     state.launchEl.style.willChange = 'auto';
 
                     const slot = state.slot;
-                    slot.classList.add('icon-button--visible');
-                    if (!instant) {
-                        slot.classList.add('icon-button--pop');
-                        queueTimeout(() => slot.classList.remove('icon-button--pop'), 420);
-                    } else {
-                        slot.classList.remove('icon-button--pop');
-                    }
+                    // Show icon with animation
+                    slot.classList.add('animate-in');
+                    setTimeout(() => {
+                        slot.classList.add('animate-complete');
+                    }, 500);
 
                     if (slot.dataset.prevTabIndex !== undefined) {
                         slot.setAttribute('tabindex', slot.dataset.prevTabIndex);
@@ -2777,21 +2971,23 @@
                             console.log('[IconLanding] Resize detected before animation start - re-measuring targets');
                             iconStates.forEach(state => {
                                 // Measure in final visible state
-                                const hadVisibleClass = state.slot.classList.contains('icon-button--visible');
-                                if (!hadVisibleClass) {
-                                    state.slot.classList.add('icon-button--visible');
-                                    state.slot.style.transition = 'none';
+                                const hadAnimateClass = state.slot.classList.contains('animate-complete');
+                                if (!hadAnimateClass) {
+                                    state.slot.classList.add('animate-in', 'animate-complete');
+                                    state.slot.style.animation = 'none';
+                                    state.slot.style.opacity = '1';
+                                    state.slot.style.transform = 'translateY(0) scale(1)';
                                 }
                                 
                                 const slotRect = state.slot.getBoundingClientRect();
                                 state.targetCenter.x = slotRect.left + slotRect.width / 2;
                                 state.targetCenter.y = slotRect.top + slotRect.height / 2;
                                 
-                                if (!hadVisibleClass) {
-                                    state.slot.classList.remove('icon-button--visible');
-                                    requestAnimationFrame(() => {
-                                        state.slot.style.transition = '';
-                                    });
+                                if (!hadAnimateClass) {
+                                    state.slot.classList.remove('animate-in', 'animate-complete');
+                                    state.slot.style.animation = '';
+                                    state.slot.style.opacity = '';
+                                    state.slot.style.transform = '';
                                 }
                                 
                                 console.log(`[IconLanding] ${state.config.id} target updated:`, {
@@ -2876,10 +3072,12 @@
                                         console.log('[Animation] Bio complete - showing social icons');
                                         AnimationController.start();
                                         
-                                        // Show links and footer after a short delay
+                                        // Calculate exact timing: 4 icons, 100ms stagger + 500ms animation = 800ms total
+                                        // Start links immediately as last icon finishes
+                                        const totalIconAnimationTime = (socialIconButtons.length - 1) * 100 + 500;
                                         queueTimeout(() => {
                                             showLinksAndFooter();
-                                        }, 800);
+                                        }, totalIconAnimationTime);
                                     });
                                     
                                     tw3.start();
