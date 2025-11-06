@@ -2487,7 +2487,7 @@
                             queueTimeout(() => {
                                 btn.classList.add('animate-complete');
                             }, 500);
-                        }, index * 100); // 100ms stagger
+                        }, index * 150); // 150ms stagger for more noticeable effect
                     });
                 }
                 
@@ -3072,9 +3072,9 @@
                                         console.log('[Animation] Bio complete - showing social icons');
                                         AnimationController.start();
                                         
-                                        // Calculate exact timing: 4 icons, 100ms stagger + 500ms animation = 800ms total
+                                        // Calculate exact timing: 4 icons, 150ms stagger + 350ms animation
                                         // Start links immediately as last icon finishes
-                                        const totalIconAnimationTime = (socialIconButtons.length - 1) * 100 + 500;
+                                        const totalIconAnimationTime = (socialIconButtons.length - 1) * 150 + 350;
                                         queueTimeout(() => {
                                             showLinksAndFooter();
                                         }, totalIconAnimationTime);
@@ -3101,17 +3101,16 @@
             function showLinksAndFooter() {
                 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
                 
-                // Wait for social icons animation to complete first
-                queueTimeout(() => {
-                    // 3. LINKS SECTION - Stagger reveal with idempotent guard
-                    const mainPage = document.getElementById('main-page');
-                    if (mainPage && !mainPage.dataset.revealed) {
-                        mainPage.classList.add('tw-visible', 'is-active');
-                        mainPage.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                        mainPage.style.opacity = '1';
-                        mainPage.style.transform = 'none';
-                        
-                        const linkItems = Array.from(mainPage.querySelectorAll('.link-item'));
+                // Show links immediately - social icons are already done
+                // 3. LINKS SECTION - Stagger reveal with idempotent guard
+                const mainPage = document.getElementById('main-page');
+                if (mainPage && !mainPage.dataset.revealed) {
+                    mainPage.classList.add('tw-visible', 'is-active');
+                    mainPage.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    mainPage.style.opacity = '1';
+                    mainPage.style.transform = 'none';
+                    
+                    const linkItems = Array.from(mainPage.querySelectorAll('.link-item'));
                         
                         // Self-check: BEFORE stagger
                         if (linkItems.length > 0) {
@@ -3152,21 +3151,20 @@
                         }
                     }
                         
-                    // 4. FOOTER - Simple fade-in with transition
-                    queueTimeout(() => {
-                        footer.classList.add('tw-visible');
-                        footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                        footer.style.opacity = '1';
-                        footer.style.transform = 'translateY(0)';
-                        console.log('[UI] ✓ Intro sequence completed: typewriter → icons → tabs');
-                        
-                        // Enable link clicks now that everything is loaded
-                        if (mainPage) mainPage.classList.add('loaded');
-                        
-                        // Cleanup typewriters
-                        typewriters.forEach(tw => tw.destroy());
-                    }, prefersReduced ? 100 : 800); // After social icons + margin
-                }, 600); // Wait 600ms for icons to settle before showing tabs
+                // 4. FOOTER - Simple fade-in with transition
+                queueTimeout(() => {
+                    footer.classList.add('tw-visible');
+                    footer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    footer.style.opacity = '1';
+                    footer.style.transform = 'translateY(0)';
+                    console.log('[UI] ✓ Intro sequence completed: typewriter → icons → tabs');
+                    
+                    // Enable link clicks now that everything is loaded
+                    if (mainPage) mainPage.classList.add('loaded');
+                    
+                    // Cleanup typewriters
+                    typewriters.forEach(tw => tw.destroy());
+                }, prefersReduced ? 100 : 800); // After social icons + margin
             }
 
             // Handle visibility change (tab backgrounding)
