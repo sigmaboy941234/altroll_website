@@ -67,18 +67,21 @@ navLinks.forEach(link => {
 });
 
 // Add event listeners to all elements with data-page attribute (CTA buttons, etc.)
-document.querySelectorAll('[data-page]').forEach(element => {
-    // Skip if already handled (nav links)
-    if (!element.classList.contains('nav-link')) {
-        element.addEventListener('click', (e) => {
-            const pageId = element.getAttribute('data-page');
-            if (pageId) {
-                e.preventDefault();
-                switchPage(pageId);
-                window.location.hash = pageId;
-            }
-        });
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-page]').forEach(element => {
+        // Skip if already handled (nav links)
+        if (!element.classList.contains('nav-link')) {
+            element.addEventListener('click', (e) => {
+                const pageId = element.getAttribute('data-page');
+                if (pageId) {
+                    e.preventDefault();
+                    console.log('Switching to page:', pageId);
+                    switchPage(pageId);
+                    window.location.hash = pageId;
+                }
+            });
+        }
+    });
 });
 
 // Handle hash on page load
