@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMMERSION | Next-Gen Gaming Studio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas id="matrix"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="logo.png" alt="IMMERSION">
+                <div class="logo-text">
+                    <span class="logo-title">IMMERSION</span>
+                    <span class="logo-subtitle">PROTOCOL</span>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active" data-page="home"><span>[01]</span> HOME</a></li>
+                <li><a href="#games" class="nav-link" data-page="games"><span>[02]</span> GAMES</a></li>
+                <li><a href="#updates" class="nav-link" data-page="updates"><span>[03]</span> UPDATES</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- HOME PAGE -->
+        <section id="home" class="page active">
+            <div class="container">
+                <div class="hero">
+                    <div class="hero-logo">
+                        <img src="logo.png" alt="IMMERSION" class="brand-logo">
+                    </div>
+                    <h1 class="hero-title">
+                        <span>I</span><span>M</span><span>M</span><span>E</span><span>R</span><span>S</span><span>I</span><span>O</span><span>N</span>
+                    </h1>
+                    <p class="hero-subtitle">CREATING NEXT-GEN EXPERIENCES</p>
+                    <div class="hero-line"></div>
+                </div>
+
+                <div class="welcome-card">
+                    <h2>Welcome to IMMERSION</h2>
+                    <p>We're a Roblox game studio focused on creating immersive, realistic gaming experiences. Our flagship title, QUICKDRAW: Legacy, features advanced physics-based combat mechanics that reward skill and precision.</p>
+                    <p>Explore our current games and stay tuned for exciting new projects in development.</p>
+                </div>
+
+                <div class="cta-buttons">
+                    <a href="#games" class="btn btn-primary" data-page="games">View Our Games →</a>
+                    <a href="https://www.roblox.com/games/15561786880/QUICKDRAW-Legacy" target="_blank" class="btn btn-secondary">Play QUICKDRAW ▶</a>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Skill-Based Combat</h3>
+                        <p>No random spread - pure precision shooting</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Realistic Physics</h3>
+                        <p>Ballistic trajectory and wall penetration</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Growing Universe</h3>
+                        <p>Multiple games in active development</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAMES PAGE -->
+        <section id="games" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <span class="page-badge">[OUR_GAMES]</span>
+                    <h1>Game Library</h1>
+                    <p>Explore our published and upcoming titles</p>
+                </div>
+
+                <div class="section-title">
+                    <span class="status-dot active"></span>
+                    <h2>AVAILABLE NOW</h2>
+                </div>
+
+                <div class="game-card large">
+                    <div class="game-image">
+                        <img src="quickdraw.png" alt="QUICKDRAW: Legacy">
+                        <div class="game-overlay">
+                            <a href="https://www.roblox.com/games/15561786880/QUICKDRAW-Legacy" target="_blank" class="btn btn-primary">Play Now →</a>
+                        </div>
+                        <span class="game-badge">GAME_001 • LIVE</span>
+                    </div>
+                    <div class="game-info">
+                        <h3>QUICKDRAW: Legacy</h3>
+                        <p>A tactical shooter featuring realistic ballistic physics, wall penetration mechanics, and skill-based combat with zero random spread. Movement affects your accuracy - master the mechanics to dominate.</p>
+                        <div class="game-stats">
+                            <div class="stat">
+                                <span>Total Visits</span>
+                                <strong>4,000,000+</strong>
+                            </div>
+                            <div class="stat">
+                                <span>Favorites</span>
+                                <strong>17,000+</strong>
+                            </div>
+                            <div class="stat">
+                                <span>Playing Now</span>
+                                <strong id="player-count">--</strong>
+                            </div>
+                            <div class="stat">
+                                <span>Max Players</span>
+                                <strong>35</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <span class="status-dot dev"></span>
+                    <h2>IN DEVELOPMENT</h2>
+                </div>
+
+                <div class="game-grid">
+                    <div class="game-card">
+                        <span class="game-badge dev">GAME_002 • IN PROGRESS</span>
+                        <div class="game-locked">
+                            <div class="lock-icon">🔒</div>
+                            <span>COMING SOON</span>
+                        </div>
+                        <h3>QUICKDRAW: Alpha</h3>
+                        <p>A complete remake of QUICKDRAW with enhanced graphics, new mechanics, expanded features, and refined combat systems. Currently in active development.</p>
+                        <div class="game-meta">
+                            <div><span>Status:</span> Building</div>
+                            <div><span>Release:</span> TBA</div>
+                        </div>
+                    </div>
+
+                    <div class="game-card">
+                        <span class="game-badge early">GAME_003 • EARLY DEV</span>
+                        <div class="game-locked">
+                            <div class="lock-icon">🔒</div>
+                            <span>COMING SOON</span>
+                        </div>
+                        <h3>RAVAGE</h3>
+                        <p>A brand new IMMERSION project currently in early development. More details will be revealed as development progresses.</p>
+                        <div class="game-meta">
+                            <div><span>Status:</span> Early Dev</div>
+                            <div><span>Info:</span> TBA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UPDATES PAGE -->
+        <section id="updates" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <span class="page-badge">[DEV_UPDATES]</span>
+                    <h1>Development Updates</h1>
+                    <p>Behind the scenes of our upcoming projects</p>
+                </div>
+
+                <div class="updates-grid">
+                    <div class="update-card">
+                        <div class="update-icon">📦</div>
+                        <span class="update-badge">ALPHA REMAKE</span>
+                        <h3>QUICKDRAW Alpha - Rebuild Project</h3>
+                        <div class="update-list">
+                            <div><span>[CORE]</span> Completely rebuilding the game from scratch</div>
+                            <div><span>[SYSTEMS]</span> Improved combat mechanics and weapon handling</div>
+                            <div><span>[FEATURES]</span> New game modes and customization options</div>
+                            <div><span>[TIMELINE]</span> Release date to be announced</div>
+                        </div>
+                    </div>
+
+                    <div class="update-card">
+                        <div class="update-icon">⚠️</div>
+                        <span class="update-badge danger">NEW PROJECT</span>
+                        <h3>RAVAGE - Mystery Project</h3>
+                        <div class="update-list">
+                            <div><span>[TYPE]</span> New game concept - details coming soon</div>
+                            <div><span>[PHASE]</span> Early concept and planning stage</div>
+                            <div><span>[INFO]</span> More information will be shared when ready</div>
+                            <div><span>[NOTE]</span> Stay tuned to our group for announcements</div>
+                        </div>
+                    </div>
+
+                    <div class="update-card">
+                        <div class="update-icon">📡</div>
+                        <span class="update-badge">UPDATES</span>
+                        <h3>Studio Updates & Plans</h3>
+                        <div class="update-list">
+                            <div><span>[GAMES]</span> Working on multiple projects simultaneously</div>
+                            <div><span>[TECH]</span> Testing new gameplay mechanics and systems</div>
+                            <div><span>[UPDATES]</span> Regular improvements to existing games</div>
+                            <div><span>[COMMUNITY]</span> Join our group for the latest news</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="community-cta">
+                    <h2>Stay Connected</h2>
+                    <p>Want to stay updated on our latest projects and get early access to news?</p>
+                    <p class="subtitle">Join our Roblox group to be part of the IMMERSION community.</p>
+                    <a href="https://www.roblox.com/communities/13857281" target="_blank" class="btn btn-primary large">
+                        [ Join Our Group ]
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
