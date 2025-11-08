@@ -54,6 +54,7 @@ function switchPage(pageId) {
     if (targetLink) targetLink.classList.add('active');
 }
 
+// Add event listeners to all navigation links
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         const pageId = link.getAttribute('data-page');
@@ -63,6 +64,21 @@ navLinks.forEach(link => {
             window.location.hash = pageId;
         }
     });
+});
+
+// Add event listeners to all elements with data-page attribute (CTA buttons, etc.)
+document.querySelectorAll('[data-page]').forEach(element => {
+    // Skip if already handled (nav links)
+    if (!element.classList.contains('nav-link')) {
+        element.addEventListener('click', (e) => {
+            const pageId = element.getAttribute('data-page');
+            if (pageId) {
+                e.preventDefault();
+                switchPage(pageId);
+                window.location.hash = pageId;
+            }
+        });
+    }
 });
 
 // Handle hash on page load
