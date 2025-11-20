@@ -21,7 +21,8 @@ export const UPGRADES = [
         id: 'multishot',
         name: 'Multishot',
         description: 'Fire an additional bullet',
-        apply: (player) => { player.multishot += 1; }
+        apply: (player) => { player.multishot += 1; },
+        tier: true // Indicates this upgrade has tiers/can be stacked indefinitely with changing names if we wanted, but for now just always available
     },
     {
         id: 'health',
@@ -42,11 +43,26 @@ export const UPGRADES = [
         id: 'homing',
         name: 'Homing Shots',
         description: 'Bullets home in on enemies',
-        apply: (player) => { player.homing = true; }
+        apply: (player) => { player.homing = true; },
+        oneTime: true // New flag for one-time upgrades
     }
 ];
 
-export function getRandomUpgrades(count) {
-    const shuffled = [...UPGRADES].sort(() => 0.5 - Math.random());
+export function getRandomUpgrades(count, player) {
+    // Filter out one-time upgrades that the player already has
+    const availableUpgrades = UPGRADES.filter(u => {
+        if (u.oneTime && player.homing && u.id === 'homing') return false;
+        return true;
+    });
+
+    // Modify Multishot name/desc based on current tier
+    const multishotUpgrade = availableUpgrades.find(u => u.id === 'multishot');
+    if (multishotUpgrade) {
+        const nextCount = player.multishot + 1;
+        multishotUpgrade.name = `Multishot (Tier ${player.multishot})`;
+        multishotUpgrade.description = `Fire ${nextCount} bullets at once`;
+    }
+
+    const shuffled = [...availableUpgrades].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 }

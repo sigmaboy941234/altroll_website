@@ -617,7 +617,7 @@ function showUpgradeMenu() {
         { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }
     );
 
-    const options = getRandomUpgrades(3);
+    const options = getRandomUpgrades(3, game.player);
     options.forEach(upgrade => {
         const div = document.createElement('div');
         div.className = 'upgrade-card';
