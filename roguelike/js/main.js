@@ -29,21 +29,11 @@ bloomPass.strength = 0.8; // Reduced from 2.0
 bloomPass.radius = 0.3;
 composer.addPass(bloomPass);
 
-// Background Grid - Dynamic size based on viewport
-let gridHelper;
-function createGrid() {
-    if (gridHelper) scene.remove(gridHelper);
-    
-    // Calculate grid size based on viewport (make it larger than screen)
-    const gridSize = Math.max(window.innerWidth, window.innerHeight) * 2;
-    const divisions = Math.floor(gridSize / 40); // Grid cell size ~40px
-    
-    gridHelper = new THREE.GridHelper(gridSize, divisions, 0x222222, 0x111111);
-    gridHelper.rotation.x = Math.PI / 2;
-    gridHelper.position.z = -10; // Move behind everything
-    scene.add(gridHelper);
-}
-createGrid();
+// Background Grid
+const gridHelper = new THREE.GridHelper(2000, 50, 0x222222, 0x111111);
+gridHelper.rotation.x = Math.PI / 2;
+gridHelper.position.z = -10; // Move behind everything
+scene.add(gridHelper);
 
 // Game State
 const game = {
@@ -188,16 +178,29 @@ function spawnEnemy() {
         case 3: x = -w; y = (Math.random() - 0.5) * window.innerHeight; break;
     }
 
-    let type = 'red';
-    const rand = Math.random();
+    // Weighted Spawn Logic
+    const weights = [
+        { type: 'red', weight: 10 },
+        { type: 'red_orbiter', weight: game.wave >= 2 ? 3 : 0 },
+        { type: 'blue', weight: game.wave >= 3 ? 3 : 0 },
+        { type: 'yellow', weight: game.wave >= 5 ? 3 : 0 },
+        { type: 'purple', weight: game.wave >= 6 ? 2 : 0 },
+        { type: 'green', weight: game.wave >= 7 ? 2 : 0 },
+        { type: 'white', weight: game.wave >= 8 ? 2 : 0 }
+    ];
+
+    // Calculate total weight
+    const totalWeight = weights.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
     
-    // Spawn Logic
-    if (game.wave >= 8 && rand < 0.65) type = 'white';
-    else if (game.wave >= 7 && rand < 0.55) type = 'green';
-    else if (game.wave >= 6 && rand < 0.45) type = 'purple';
-    else if (game.wave >= 5 && rand < 0.35) type = 'yellow';
-    else if (game.wave >= 3 && rand < 0.25) type = 'blue';
-    else if (game.wave >= 2 && rand < 0.2) type = 'red_orbiter'; // New enemy in wave 2
+    let type = 'red';
+    for (const item of weights) {
+        if (random < item.weight) {
+            type = item.type;
+            break;
+        }
+        random -= item.weight;
+    }
 
     game.enemies.push(new Enemy(x, y, type));
     
@@ -632,31 +635,11 @@ function showUpgradeMenu() {
     });
 }
 
-// Frame rate limiter (cap at 60 FPS) with delta time
-let lastFrameTime = 0;
-const targetFrameTime = 1000 / 60; // 16.67ms for 60 FPS
-let deltaTime = 1; // Delta time multiplier for consistent speeds
-
-function animate(currentTime = 0) {
+function animate() {
     requestAnimationFrame(animate);
-    
-    // Calculate time since last frame
-    const elapsed = currentTime - lastFrameTime;
-    
-    // Only update if enough time has passed (60 FPS cap)
-    if (elapsed >= targetFrameTime) {
-        // Calculate delta time (should be ~1.0 at 60 FPS)
-        deltaTime = elapsed / targetFrameTime;
-        lastFrameTime = currentTime - (elapsed % targetFrameTime);
-        
-        update();
-        composer.render();
-    }
+    update();
+    composer.render();
 }
-
-// Export deltaTime for use in other modules
-window.gameSpeed = 1.0; // Global speed multiplier
-window.getDeltaTime = () => deltaTime * window.gameSpeed;
 
 // Event Listeners
 window.addEventListener('keydown', e => input.keys[e.key.toLowerCase()] = true);
@@ -675,7 +658,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
-    createGrid(); // Recreate grid to fit new viewport size
 });
 
 document.getElementById('restart-btn').addEventListener('click', () => {
@@ -685,14 +667,6 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 document.getElementById('continue-btn').addEventListener('click', () => {
     ui.enemyIntro.classList.add('hidden');
     beginWave();
-});
-
-// Speed control slider
-const speedSlider = document.getElementById('speed-slider');
-const speedValue = document.getElementById('speed-value');
-speedSlider.addEventListener('input', (e) => {
-    window.gameSpeed = parseFloat(e.target.value);
-    speedValue.textContent = Math.round(window.gameSpeed * 100) + '%';
 });
 
 // Debug spawner
