@@ -29,11 +29,21 @@ bloomPass.strength = 0.8; // Reduced from 2.0
 bloomPass.radius = 0.3;
 composer.addPass(bloomPass);
 
-// Background Grid
-const gridHelper = new THREE.GridHelper(2000, 50, 0x222222, 0x111111);
-gridHelper.rotation.x = Math.PI / 2;
-gridHelper.position.z = -10; // Move behind everything
-scene.add(gridHelper);
+// Background Grid - Dynamic size based on viewport
+let gridHelper;
+function createGrid() {
+    if (gridHelper) scene.remove(gridHelper);
+    
+    // Calculate grid size based on viewport (make it larger than screen)
+    const gridSize = Math.max(window.innerWidth, window.innerHeight) * 2;
+    const divisions = Math.floor(gridSize / 40); // Grid cell size ~40px
+    
+    gridHelper = new THREE.GridHelper(gridSize, divisions, 0x222222, 0x111111);
+    gridHelper.rotation.x = Math.PI / 2;
+    gridHelper.position.z = -10; // Move behind everything
+    scene.add(gridHelper);
+}
+createGrid();
 
 // Game State
 const game = {
@@ -657,6 +667,7 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+    createGrid(); // Recreate grid to fit new viewport size
 });
 
 document.getElementById('restart-btn').addEventListener('click', () => {
