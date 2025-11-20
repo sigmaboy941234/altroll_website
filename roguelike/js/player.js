@@ -30,11 +30,14 @@ export class Player {
     }
 
     update(input, enemies, bullets) {
-        // Movement
-        if (input.keys['w'] || input.keys['arrowup']) this.mesh.position.y += this.speed;
-        if (input.keys['s'] || input.keys['arrowdown']) this.mesh.position.y -= this.speed;
-        if (input.keys['a'] || input.keys['arrowleft']) this.mesh.position.x -= this.speed;
-        if (input.keys['d'] || input.keys['arrowright']) this.mesh.position.x += this.speed;
+        // Get delta time for frame-independent movement
+        const dt = window.getDeltaTime ? window.getDeltaTime() : 1.0;
+        
+        // Movement (multiply by delta time for consistent speed)
+        if (input.keys['w'] || input.keys['arrowup']) this.mesh.position.y += this.speed * dt;
+        if (input.keys['s'] || input.keys['arrowdown']) this.mesh.position.y -= this.speed * dt;
+        if (input.keys['a'] || input.keys['arrowleft']) this.mesh.position.x -= this.speed * dt;
+        if (input.keys['d'] || input.keys['arrowright']) this.mesh.position.x += this.speed * dt;
 
         // Constrain
         const w = window.innerWidth / 2 - 20;

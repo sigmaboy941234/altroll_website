@@ -632,23 +632,31 @@ function showUpgradeMenu() {
     });
 }
 
-// Frame rate limiter (cap at 60 FPS)
+// Frame rate limiter (cap at 60 FPS) with delta time
 let lastFrameTime = 0;
 const targetFrameTime = 1000 / 60; // 16.67ms for 60 FPS
+let deltaTime = 1; // Delta time multiplier for consistent speeds
 
 function animate(currentTime = 0) {
     requestAnimationFrame(animate);
     
     // Calculate time since last frame
-    const deltaTime = currentTime - lastFrameTime;
+    const elapsed = currentTime - lastFrameTime;
     
     // Only update if enough time has passed (60 FPS cap)
-    if (deltaTime >= targetFrameTime) {
-        lastFrameTime = currentTime - (deltaTime % targetFrameTime);
+    if (elapsed >= targetFrameTime) {
+        // Calculate delta time (should be ~1.0 at 60 FPS)
+        deltaTime = elapsed / targetFrameTime;
+        lastFrameTime = currentTime - (elapsed % targetFrameTime);
+        
         update();
         composer.render();
     }
 }
+
+// Export deltaTime for use in other modules
+window.gameSpeed = 1.0; // Global speed multiplier
+window.getDeltaTime = () => deltaTime * window.gameSpeed;
 
 // Event Listeners
 window.addEventListener('keydown', e => input.keys[e.key.toLowerCase()] = true);
@@ -677,6 +685,14 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 document.getElementById('continue-btn').addEventListener('click', () => {
     ui.enemyIntro.classList.add('hidden');
     beginWave();
+});
+
+// Speed control slider
+const speedSlider = document.getElementById('speed-slider');
+const speedValue = document.getElementById('speed-value');
+speedSlider.addEventListener('input', (e) => {
+    window.gameSpeed = parseFloat(e.target.value);
+    speedValue.textContent = Math.round(window.gameSpeed * 100) + '%';
 });
 
 // Debug spawner
