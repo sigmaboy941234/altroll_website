@@ -622,10 +622,22 @@ function showUpgradeMenu() {
     });
 }
 
-function animate() {
+// Frame rate limiter (cap at 60 FPS)
+let lastFrameTime = 0;
+const targetFrameTime = 1000 / 60; // 16.67ms for 60 FPS
+
+function animate(currentTime = 0) {
     requestAnimationFrame(animate);
-    update();
-    composer.render();
+    
+    // Calculate time since last frame
+    const deltaTime = currentTime - lastFrameTime;
+    
+    // Only update if enough time has passed (60 FPS cap)
+    if (deltaTime >= targetFrameTime) {
+        lastFrameTime = currentTime - (deltaTime % targetFrameTime);
+        update();
+        composer.render();
+    }
 }
 
 // Event Listeners
