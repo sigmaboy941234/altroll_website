@@ -77,9 +77,6 @@ export class Bullet {
 
     update() {
         try {
-            // Get delta time for frame-independent movement
-            const dt = window.getDeltaTime ? window.getDeltaTime() : 1.0;
-            
             // Super Bullet Trail
             if (this.isSuper) {
                 particleSystem.createBlockTrail(this.mesh.position.x, this.mesh.position.y);
@@ -111,9 +108,9 @@ export class Bullet {
                 this.mesh.rotation.z = currentAngle;
             }
 
-            // Apply Velocity (multiply by delta time for consistent speed)
-            this.mesh.position.x += this.velocity.x * dt;
-            this.mesh.position.y += this.velocity.y * dt;
+            // Apply Velocity
+            this.mesh.position.x += this.velocity.x;
+            this.mesh.position.y += this.velocity.y;
 
             // Bounds check
             const w = window.innerWidth / 2 + 200;
