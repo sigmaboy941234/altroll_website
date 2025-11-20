@@ -2,15 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=../top/roguelike.html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting to NEON ROGUE...</title>
-    <script>
-        window.location.href = "../top/roguelike.html";
+    <title>NEON ROGUE // 0.1</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
     </script>
 </head>
 <body>
-    <p>Redirecting to NEON ROGUE...</p>
-    <p>If you are not redirected, <a href="../top/roguelike.html">click here</a>.</p>
+    <div id="canvas-container"></div>
+    
+    <div id="ui-layer">
+        <div id="hud">
+            <div id="score-container">WAVE <span id="wave-display">1</span></div>
+            <div id="health-bar-container">
+                <div id="health-bar"></div>
+            </div>
+            <div id="charge-bar-container">
+                <div class="charge-label">OVERCHARGE</div>
+                <div id="charge-bar"></div>
+            </div>
+        </div>
+
+        <div id="debug-panel" class="hidden">
+            <div class="debug-title">DEBUG SPAWNER</div>
+            <button class="debug-btn" data-enemy="red">Red (Square)</button>
+            <button class="debug-btn" data-enemy="red_orbiter">Red (Orbiter)</button>
+            <button class="debug-btn" data-enemy="blue">Blue (Hexagon)</button>
+            <button class="debug-btn" data-enemy="yellow">Yellow (Triangle)</button>
+            <button class="debug-btn" data-enemy="purple">Purple (Octagon)</button>
+            <button class="debug-btn" data-enemy="green">Green (Healer)</button>
+            <button class="debug-btn" data-enemy="white">White (Reflector)</button>
+        </div>
+
+        <div id="upgrade-menu" class="hidden">
+            <h2 class="glitch-text">SYSTEM UPGRADE</h2>
+            <div id="upgrade-options"></div>
+        </div>
+
+        <div id="enemy-intro" class="hidden">
+            <h2 class="glitch-text">NEW THREAT DETECTED</h2>
+            <div id="enemy-info"></div>
+            <button id="continue-btn">BEGIN WAVE</button>
+        </div>
+
+        <div id="game-over" class="hidden">
+            <h1 class="glitch-text">CRITICAL FAILURE</h1>
+            <div id="final-score">WAVES SURVIVED: 0</div>
+            <button id="restart-btn">REBOOT SYSTEM</button>
+        </div>
+    </div>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
